@@ -15,7 +15,7 @@
 
 1. Clone the repository:  
    ```bash  
-   git clone https://github.com/real link lol 
+   git clone https://github.com/aj202088/HorizonHelp.git
    cd HorizonHelp
 
 2. Install Dependencies:

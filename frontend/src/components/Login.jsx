@@ -1,88 +1,162 @@
-import React, { useState } from "react"; // Import React and the useState hook
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom"; // Added Link for routing
 
-// Define the Login component
 const Login = () => {
-    // useState hooks to manage email and password input states
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-    // Function that runs when the form is submitted
-    const handleSubmit = (e) => {
-        e.preventDefault(); // Prevents the default form submission behavior (which reloads the page)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        console.log("Logging in with:", { email, password });
+    try {
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-        // TODO: Connect this function to the backend authentication API
-    };
+      const data = await response.json();
 
-    return (
-        <div style={styles.container}>
-            <h2>Login</h2>
+      if (data.success) {
+        console.log("Login successful:", data);
+        navigate("/dashboard");
+      } else {
+        alert(data.message || "Login failed. Please check your credentials.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred while logging in. Please try again.");
+    }
+  };
 
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} style={styles.form}>
+  return (
+    <div style={styles.container}>
+      {/* Login Section */}
+      <div style={styles.card}>
+        <h2 style={styles.title}>Login</h2>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <button type="submit" style={styles.button}>Login</button>
 
-                {/* Email Input Field */}
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)} // Updates the state when user types
-                    required
-                    style={styles.input}
-                />
+          {/* Register Link */}
+          <p style={styles.registerText}>
+            Don't have an account?{" "}
+            <Link to="/register" style={styles.registerLink}>Register here</Link>
+          </p>
+        </form>
+      </div>
 
-                {/* Password Input Field */}
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)} // Updates the state when user types
-                    required
-                    style={styles.input}
-                />
-
-                {/* Submit Button */}
-                <button type="submit" style={styles.button}>Login</button>
-
-            </form>
-        </div>
-    );
+      {/* Welcome Section */}
+      <div style={styles.welcomeSection}>
+        <h1 style={styles.welcomeTitle}>Welcome to HorizonHelp</h1>
+        <p style={styles.welcomeText}>
+          Your go-to platform for fire alerts, safety tracking, and first responder coordination.
+        </p>
+        <p style={styles.welcomeSubtext}>Stay informed. Stay safe. Stay connected.</p>
+      </div>
+    </div>
+  );
 };
 
-// Inline CSS styles for better UI (optional, can be moved to a CSS file)
+// Styles
 const styles = {
-    container: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh", // Makes the form centered vertically
-        backgroundColor: "#222", // Dark background
-        color: "#fff", // White text color
-    },
-    form: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px", // Adds spacing between input fields
-        width: "300px",
-    },
-    input: {
-        padding: "10px",
-        fontSize: "16px",
-        borderRadius: "5px",
-        border: "1px solid #ccc",
-    },
-    button: {
-        padding: "10px",
-        fontSize: "16px",
-        backgroundColor: "#61dafb", // Light blue color for React theme
-        color: "#222",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
+  container: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
+    backgroundColor: "#1e1e1e",
+  },
+  card: {
+    flex: 1,
+    backgroundColor: "#2c2c2c",
+    padding: "40px",
+    borderRadius: "10px",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+    textAlign: "center",
+    color: "#fff",
+    maxWidth: "350px",
+    marginLeft: "8%",
+  },
+  title: {
+    fontSize: "24px",
+    fontWeight: "bold",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  },
+  input: {
+    padding: "12px",
+    fontSize: "16px",
+    borderRadius: "5px",
+    border: "none",
+    outline: "none",
+    backgroundColor: "#3c3c3c",
+    color: "#fff",
+  },
+  button: {
+    padding: "12px",
+    fontSize: "16px",
+    backgroundColor: "#61dafb",
+    color: "#222",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  registerText: {
+    fontSize: "14px",
+    color: "#ccc",
+    marginTop: "10px",
+  },
+  registerLink: {
+    color: "#61dafb",
+    textDecoration: "underline",
+    cursor: "pointer",
+  },
+  welcomeSection: {
+    flex: 2,
+    padding: "60px",
+    color: "#fff",
+    textAlign: "left",
+    maxWidth: "600px",
+  },
+  welcomeTitle: {
+    fontSize: "40px",
+    fontWeight: "bold",
+    marginBottom: "15px",
+  },
+  welcomeText: {
+    fontSize: "20px",
+    color: "#ddd",
+    maxWidth: "500px",
+  },
+  welcomeSubtext: {
+    fontSize: "16px",
+    color: "#aaa",
+    marginTop: "15px",
+    fontStyle: "italic",
+  },
 };
 
-// Export the Login component so it can be used in other files
 export default Login;

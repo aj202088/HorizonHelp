@@ -8,7 +8,7 @@ const client = new MongoClient(uri);
 const dbName = "HorizonHelp";
 
 let db;
-
+// Connect to the MongoDB cluster
 module.exports = {
   connectToServer: async function() {
     try {

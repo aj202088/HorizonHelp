@@ -16,8 +16,15 @@
 1. Clone the repository:  
    ```bash  
    git clone https://github.com/aj202088/HorizonHelp.git
+
+   ```bash
    cd HorizonHelp
+   cd frontend
 
 2. Install Dependencies:
      ```bash
-     pip install -r dependencies.txt
+     npm install
+
+3. Run the file
+   ```bash
+   npm run dev

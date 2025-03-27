@@ -1,10 +1,14 @@
+// Packages
 const express = require("express");
 const cors = require("cors");
-const connect = require("./connect");
-const collection = require("./userCreation"); // Import the user model
+const connect = require("./connect")
+const bcrypt = require("bcrypt");
+const userCollection = require("./userCreation");
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+// Creating express application
+const app = express()
+// Our current port for backend
+const PORT = 5750
 
 // Middleware
 app.use(cors());
@@ -21,31 +25,67 @@ connect.connectToServer()
 
 // Register endpoint
 app.post("/api/register", async (req, res) => {
-    const { email, password } = req.body;
+    // Get the user data
+    const data = {
+        email: req.body.email,
+        password: req.body.password
+    };
 
-    if (!email || !password) {
-        return res.status(400).json({ success: false, message: "Email and password are required." });
-    }
+    // Hash the password before its placed into mongodb
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+    data.password = hashedPassword;
 
     try {
-        // Check if the user already exists
-        const existingUser = await collection.findOne({ email });
+        // Check if the emai; already exists in the database
+        const existingUser = await userCollection.findOne({ email: data.email });
+
         if (existingUser) {
-            return res.status(400).json({ success: false, message: "User already exists." });
+            // User already exists, return json error code 400
+            return res.status(400).json({ success: false, message: "Error: Email is already registered." });
+        } else {
+            // Create a new user
+            const result = await userCollection.create(data);
+
+            // Return successful json code
+            res.status(201).json({ success: true, message: "Registration successful!" });
         }
-
-        // Create a new user
-        const newUser = new collection({ email, password });
-        await newUser.save();
-
-        res.status(201).json({ success: true, message: "User registered successfully." });
-    } catch (error) {
-        console.error("Error registering user:", error);
+    } catch (err) {
+        console.error('Registration error:', err);
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
 
-// Start the server
+
+//Log in user
+app.post("/login", async (req, res) => {
+    try {
+        // Verify the user exists
+        const check = await userCollection.findOne({ email: req.body.email });
+        if (!check) {
+            // Return json error code 400 to frontend
+            res.status(400).json({sucess: false, message: "User not found."});
+        }
+        // Compare the hashed password from the database with the given password
+        const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
+        if (!isPasswordMatch) {
+            // User has inputted wrong password
+            res.status(400).json({success: false, message: "Incorrect password given."})
+        }
+        else {
+            // User has given correct credentials
+            res.json({success: true, message: "Success!"});
+        }
+    }
+    catch {
+        // Internal server error
+        console.error('Login Error')
+        res.status(500).json({success: false, message: "Internal server error"});
+    }
+});
+
+
+// Creates our server to listen to requests on port 5750
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`)
 });

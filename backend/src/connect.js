@@ -1,20 +1,51 @@
-const mongoose = require("mongoose");
+// New approach justu sing mongoclient
+const { MongoClient } = require('mongodb');
 
-// MongoDB URI
-const uri = "mongodb+srv://test-admin:3EGJfHM4cqg9KQfN@horizonhelp.zuvsx.mongodb.net/HorizonHelp?retryWrites=true&w=majority";
-const client = new MongoClient(uri);
+// Connection string
+const uri = "mongodb+srv://test-admin:3EGJfHM4cqg9KQfN@horizonhelp.zuvsx.mongodb.net/";
+
+// Global client and db variables
+let client;
+let db;
+
+const connectToServer = async function() {
+  try {
+      // Create a new client
+      client = new MongoClient(uri);
+
+      // Connect to the MongoDB cluster
+      await client.connect();
+      
+      // Select the database
+      db = client.db("horizonhelp");
+      
+      console.log("Successfully connected to MongoDB");
+      return db;
+  } catch (err) {
+      console.error("Failed to connect to MongoDB", err);
+      throw err;
+  }
+};
+
+// Get the database
+const getDB = () => {
+  if (!db) {
+    // Debugging error
+      throw new Error("Database not found.");
+  }
+  return db;
+};
+
+// Close connection once done
+const closeConnection = async () => {
+  if (client) {
+      await client.close();
+      console.log("Connection closed");
+  }
+};
 
 module.exports = {
-  connectToServer: async function () {
-    try {
-      await mongoose.connect(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-      console.log("Connected successfully to MongoDB");
-    } catch (error) {
-      console.error("MongoDB connection error:", error);
-      process.exit(1);
-    }
-  },
+  connectToServer,
+  getDB,
+  closeConnection
 };

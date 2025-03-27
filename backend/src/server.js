@@ -10,16 +10,20 @@ const app = express()
 // Our current port for backend
 const PORT = 5750
 
-// MiddleWare
-// Tells express how to handle sharing resources accross different domains (such as hosting on 2 different ports from frontend to backend)
-app.use(cors())
-// Tells express to parse requests in json format
-app.use(express.json())
+// Middleware
+app.use(cors());
+app.use(express.json());
 
 // Connect to MongoDB
-connect.connectToServer();
+connect.connectToServer()
+    .then(() => {
+        console.log("Connected successfully to MongoDB");
+    })
+    .catch((error) => {
+        console.error("Failed to connect to MongoDB:", error);
+    });
 
-//  Signs the user up for an account
+// Register endpoint
 app.post("/api/register", async (req, res) => {
     // Get the user data
     const data = {
@@ -84,4 +88,4 @@ app.post("/login", async (req, res) => {
 // Creates our server to listen to requests on port 5750
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
-})
+});

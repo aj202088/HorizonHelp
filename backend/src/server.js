@@ -3,12 +3,12 @@ const express = require("express");
 const cors = require("cors");
 const connect = require("./connect")
 const bcrypt = require("bcrypt");
-const collection = require("./userCreation");
+const userCollection = require("./userCreation");
 
 // Creating express application
 const app = express()
 // Our current port for backend
-const PORT = 5000
+const PORT = 5750
 
 // MiddleWare
 // Tells express how to handle sharing resources accross different domains (such as hosting on 2 different ports from frontend to backend)
@@ -21,49 +21,43 @@ connect.connectToServer();
 
 //  Signs the user up for an account
 app.post("/api/register", async (req, res) => {
-
+    // Get the user data
     const data = {
         email: req.body.email,
         password: req.body.password
-    }
+    };
 
-    // Check if the username already exists in the database
-    const existingUser = await collection.findOne({ email: data.email });
+    // Hash the password before its placed into mongodb
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+    data.password = hashedPassword;
 
-    if (existingUser) {
-        // User already exists, return json error code 400
-        return res.status(400).json({success: false, message: "Error: Email is already registered."})
-    } else {
-        try {
+    try {
+        // Check if the emai; already exists in the database
+        const existingUser = await userCollection.findOne({ email: data.email });
+
+        if (existingUser) {
+            // User already exists, return json error code 400
+            return res.status(400).json({ success: false, message: "Error: Email is already registered." });
+        } else {
             // Create a new user
-            // Hash the password using bcrypt
-            const saltRounds = 10; // Number of salt rounds for bcrypt
-            const hashedPassword = await bcrypt.hash(data.password, saltRounds);
-
-            data.password = hashedPassword; // Replace the original password with the hashed one
-
-            // Save new user to DB
-            const newUser = new collection({
-                email: data.email,
-                password: hashedPassword
-            });
-            await newUser.save();
+            const result = await userCollection.create(data);
 
             // Return successful json code
-            res.status(201).json({success: true, message: "Registration successful!"});
-        } catch (err) {
-            // Log console error and return json internal server error code to frontend
-            console.error('Registration error');
-            res.status(500).json({sucess: false, message: "Internal server error."});
+            res.status(201).json({ success: true, message: "Registration successful!" });
         }
-    } 
+    } catch (err) {
+        console.error('Registration error:', err);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
 });
+
 
 //Log in user
 app.post("/login", async (req, res) => {
     try {
         // Verify the user exists
-        const check = await collection.findOne({ email: req.body.email });
+        const check = await userCollection.findOne({ email: req.body.email });
         if (!check) {
             // Return json error code 400 to frontend
             res.status(400).json({sucess: false, message: "User not found."});
@@ -82,12 +76,12 @@ app.post("/login", async (req, res) => {
     catch {
         // Internal server error
         console.error('Login Error')
-        res.status(500).json({success: false, message: "Interna; server error"});
+        res.status(500).json({success: false, message: "Internal server error"});
     }
 });
 
 
-// Creates our server to listen to requests on port 3000
+// Creates our server to listen to requests on port 5750
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })

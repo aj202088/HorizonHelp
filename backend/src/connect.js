@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 // MongoDB URI
 const uri = "mongodb+srv://test-admin:3EGJfHM4cqg9KQfN@horizonhelp.zuvsx.mongodb.net/HorizonHelp?retryWrites=true&w=majority";
+const client = new MongoClient(uri);
 
 module.exports = {
   connectToServer: async function () {

@@ -1,13 +1,12 @@
-// New approach using MongoClient, from Mongo Developer codebase examples https://github.com/mongodb-developer/nodejs-quickstart/blob/master/connection.js
+// New approach justu sing mongoclient
 const { MongoClient } = require('mongodb');
 
 // Connection string
-const uri = "mongodb+srv://test-admin:3EGJfHM4cqg9KQfN@horizonhelp.vld24.mongodb.net/HorizonHelp";
+const uri = "mongodb+srv://test-admin:3EGJfHM4cqg9KQfN@horizonhelp.zuvsx.mongodb.net/";
 
 // Global client and db variables
 let client;
 let db;
-
 
 const connectToServer = async function() {
   try {
@@ -18,10 +17,10 @@ const connectToServer = async function() {
       await client.connect();
       
       // Select the database
-      database = client.db("HorizonHelp");
+      db = client.db("horizonhelp");
       
       console.log("Successfully connected to MongoDB");
-      return database;
+      return db;
   } catch (err) {
       console.error("Failed to connect to MongoDB", err);
       throw err;
@@ -30,11 +29,11 @@ const connectToServer = async function() {
 
 // Get the database
 const getDB = () => {
-  if (!database) {
+  if (!db) {
     // Debugging error
       throw new Error("Database not found.");
   }
-  return database;
+  return db;
 };
 
 // Close connection once done

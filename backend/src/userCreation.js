@@ -1,51 +1,60 @@
-// Redo with Mongodb driver instead of mongoose
 const { getDB } = require('./connect');
 
 // Create collection containing the create function using inputted user data
-const collection = {
+const userCollection = {
     async create(userData) {
-        // Get existing database
+        // Get the existing database
         const db = getDB();
+        
         // Get existing collection of users to compare potential new user to
-        const existingUser = db.collection('users').findOne(query);
+        const collection = db.collection('users');  // 'users' collection
+
         try {
             // New user schema
             const signupSchema = {
-                // Using lowercase trues bc I know js
                 email: {
-                    type: String,
                     value: userData.email,
                     required: true,
                     unique: true
                 },
                 password: {
-                    type: String,
                     value: userData.password,
                     required: true
                 }
-            }
+            };
 
             // TODO: implement error throwing when field is missing
 
             // Create the new user info
             const userInformation = {
-                email: signupSchema.email.value
-            }
+                email: signupSchema.email.value,
+                password: signupSchema.password.value
+            };
 
-            // Return new user
-            return collection.insertOne(userInformation);
+            // Insert the new user into the collection
+            const result = await collection.insertOne(userInformation);
             
+            // Return result(successful/unsuccessful)
+            return result;
+
         } catch (err) {
+            console.log(err);
+            throw new Error("Error creating user");
+        }
+    },
 
-            // Log any errors that may occur (debugging)
-            console.log(err)
-
-        } finally {
-            // Close the connection once finished
-            await client.close();
-
+    // Check if a user already exists
+    async findOne(query) {
+        const db = getDB();
+        const collection = db.collection('users');
+        try {
+            const result = await collection.findOne(query);
+            return result;
+        } catch (err) {
+            console.log(err);
+            throw new Error("Error finding user");
         }
     }
 };
 
-module.exports = collection;
+module.exports = userCollection;

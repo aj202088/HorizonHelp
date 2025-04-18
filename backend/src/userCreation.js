@@ -20,6 +20,27 @@ const userCollection = {
                 password: {
                     value: userData.password,
                     required: true
+                },
+                // If they want to leave address and City optional and default to San Francisco PD
+                street: {
+                    value: userData.street || "1251 3rd St",
+                    required: false
+                },
+                city: {
+                    value: userData.city || "San Francisco",
+                    required: false
+                },
+                state: {
+                    value: userData.state || "CA",
+                    required: false
+                },
+                zip: {
+                    value: userData.zip || "94158",
+                    required: false
+                },
+                country: {
+                    value: userData.country || "USA",
+                    required: false
                 }
             };
 
@@ -28,7 +49,12 @@ const userCollection = {
             // Create the new user info
             const userInformation = {
                 email: signupSchema.email.value,
-                password: signupSchema.password.value
+                password: signupSchema.password.value,
+                street: signupSchema.street.value,
+                city: signupSchema.city.value,
+                state: signupSchema.state.value,
+                zip: signupSchema.zip.value,
+                country: signupSchema.country.value
             };
 
             // Insert the new user into the collection

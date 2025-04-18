@@ -4,6 +4,11 @@ import { useNavigate } from "react-router-dom";
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
   const navigate = useNavigate();
 
   // Handle form submission
@@ -14,7 +19,7 @@ const Register = () => {
       const response = await fetch("http://localhost:5750/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, street, city, state, zip, country}),
       });
 
       const data = await response.json();
@@ -49,6 +54,46 @@ const Register = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="street"
+            placeholder="Street"
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="city"
+            placeholder="City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="state"
+            placeholder="State"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="zip"
+            placeholder="Zip"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <input
+            type="country"
+            placeholder="Country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
             required
             style={styles.input}
           />

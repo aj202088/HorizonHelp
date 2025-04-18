@@ -73,16 +73,45 @@ app.post("/login", async (req, res) => {
             res.status(400).json({success: false, message: "Incorrect password given."})
         }
         else {
-            // User has given correct credentials
-            res.json({success: true, message: "Success!"});
+            // User has given correct credentials, send user data (excluding password)
+            const { street, city, state, zip, country, email: userEmail } = check;
+            res.json({success: true, message: "Success!", user: { email: userEmail, street, city, state, zip, country }});
         }
     }
-    catch {
+    catch (err) {
         // Internal server error
-        console.error('Login Error')
+        console.error('Login Error:', err);
         res.status(500).json({success: false, message: "Internal server error"});
     }
 });
+
+// GET endpoint to fetch user details by email
+app.get("/user", async (req, res) => {
+    // Extract email from query params
+    const email = req.query.email;
+    // If email is not provided in request, return 400 bad request
+    if (!email) {
+        return res.status(400).json({ success: false, message: "Email required" });
+    }
+    try {
+        // Try to find user in db using email
+        const user = await userCollection.findOne({ email });
+        // If no suer found, return 404 not found
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        
+        // Return needed data excluding PW for safety
+        const { street, city, state, zip, country, email: userEmail } = user;
+        res.json({ success: true, user: { email: userEmail, street, city, state, zip, country } });
+    } 
+    // Catch/log unexpected server errors
+    catch (err) {
+         console.error("User fetch error:", err);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  }
+);
 
 
 // Creates our server to listen to requests on port 5750

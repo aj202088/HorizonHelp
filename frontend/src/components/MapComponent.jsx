@@ -15,14 +15,13 @@ L.Icon.Default.mergeOptions({
     'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
 });
 
-const MapComponent = () => {
-  const position = [37.7749, -122.4194]; // Example coordinates (San Francisco)
-
+const MapComponent = ({ position }) => {
   return (
     <MapContainer
       center={position}
       zoom={13}
-      style={{ height: '600px', width: '800px' }} // Adjust these dimensions if needed
+      // Default dimension
+      style={{ height: '600px', width: '800px'}}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
@@ -30,7 +29,7 @@ const MapComponent = () => {
       />
       <Marker position={position}>
         <Popup>
-          Default Location <br /> This marker is for demonstration!
+          Your Location <br /> Based on your saved address.
         </Popup>
       </Marker>
     </MapContainer>

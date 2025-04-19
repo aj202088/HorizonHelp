@@ -28,7 +28,12 @@ app.post("/api/register", async (req, res) => {
     // Get the user data
     const data = {
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        street: req.body.street,
+        city: req.body.city,
+        state: req.body.state,
+        zip: req.body.zip,
+        country: req.body.country
     };
 
     // Hash the password before its placed into mongodb

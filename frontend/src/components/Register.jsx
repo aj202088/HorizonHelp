@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCoordinatesFromAddress } from "../Utils/geocode";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -15,6 +16,16 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check if address is correct when registering account
+    const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
+    const coords = await getCoordinatesFromAddress(fullAddress);
+
+    // Only allow successful registration if there are valid coordinates
+    if (!coords) {
+      alert("The address you entered appears to be invalid. Please check it and try again.");
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:5750/api/register", {
         method: "POST",
@@ -27,10 +38,12 @@ const Register = () => {
       if (data.success) {
         alert("Registration successful!");
         navigate("/login"); // Redirect to login after signup
-      } else {
+      } 
+      else {
         alert(data.message || "Registration failed.");
       }
-    } catch (err) {
+    } 
+    catch (err) {
       console.error("Registration error:", err);
       alert("Something went wrong. Please try again.");
     }

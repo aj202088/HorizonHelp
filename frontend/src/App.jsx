@@ -4,6 +4,8 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import Register from './components/Register'
 
+// Main App component
+// This component defines the routes for the application
 function App() {
   return (
     <Routes>

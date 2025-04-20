@@ -1,0 +1,24 @@
+{
+  "name": "horizonhelp",
+  "version": "1.0.0",
+  "description": "*by Ashton Penalacia, Sebastian Garcia, Sophia Cardona Nader, and Haylee Zuba*",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hayleezuba/HorizonHelp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hayleezuba/HorizonHelp/issues"
+  },
+  "homepage": "https://github.com/hayleezuba/HorizonHelp#readme",
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^5.0.0"
+  }
+}

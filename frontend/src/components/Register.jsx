@@ -1,20 +1,41 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCoordinatesFromAddress } from "../Utils/geocode";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
+  const [notifications, setNotifications] = useState(true);
   const navigate = useNavigate();
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check if address is correct when registering account
+    const isAddressProvided = street || city || state || zip || country;
+    if (isAddressProvided) {
+      const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
+      const coords = await getCoordinatesFromAddress(fullAddress);
+  
+      // Only allow successful registration if there are valid coordinates
+      if (!coords) {
+        alert("The address you entered appears to be invalid. Please check it and try again.");
+        return;
+      }  
+    }
+    
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch("http://localhost:5750/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, street, city, state, zip, country, notifications }),
       });
 
       const data = await response.json();
@@ -22,10 +43,12 @@ const Register = () => {
       if (data.success) {
         alert("Registration successful!");
         navigate("/login"); // Redirect to login after signup
-      } else {
+      } 
+      else {
         alert(data.message || "Registration failed.");
       }
-    } catch (err) {
+    } 
+    catch (err) {
       console.error("Registration error:", err);
       alert("Something went wrong. Please try again.");
     }
@@ -50,6 +73,41 @@ const Register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            style={styles.input}
+          />
+          <input
+            type="street"
+            placeholder="Street"
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+            style={styles.input}
+          />
+          <input
+            type="city"
+            placeholder="City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={styles.input}
+          />
+          <input
+            type="state"
+            placeholder="State"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            style={styles.input}
+          />
+          <input
+            type="zip"
+            placeholder="Zip"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+            style={styles.input}
+          />
+          <input
+            type="country"
+            placeholder="Country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
             style={styles.input}
           />
           <button type="submit" style={styles.button}>Sign Up</button>

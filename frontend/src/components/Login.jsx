@@ -20,8 +20,10 @@ const Login = () => {
 
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.user) {
         console.log("Login successful:", data);
+        // Store user email to access it on the dashboard
+        localStorage.setItem("userEmail", data.user.email);
         navigate("/dashboard");
       } else {
         alert(data.message || "Login failed. Please check your credentials.");

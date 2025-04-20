@@ -10,27 +10,32 @@ const Register = () => {
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
   const [country, setCountry] = useState("");
+  const [notifications, setNotifications] = useState(true);
   const navigate = useNavigate();
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Check if address is correct when registering account
-    const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
-    const coords = await getCoordinatesFromAddress(fullAddress);
-
-    // Only allow successful registration if there are valid coordinates
-    if (!coords) {
-      alert("The address you entered appears to be invalid. Please check it and try again.");
-      return;
+    const isAddressProvided = street || city || state || zip || country;
+    if (isAddressProvided) {
+      const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
+      const coords = await getCoordinatesFromAddress(fullAddress);
+  
+      // Only allow successful registration if there are valid coordinates
+      if (!coords) {
+        alert("The address you entered appears to be invalid. Please check it and try again.");
+        return;
+      }  
     }
-
+    
     try {
       const response = await fetch("http://localhost:5750/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, street, city, state, zip, country}),
+        body: JSON.stringify({ email, password, street, city, state, zip, country, notifications }),
       });
 
       const data = await response.json();
@@ -75,7 +80,6 @@ const Register = () => {
             placeholder="Street"
             value={street}
             onChange={(e) => setStreet(e.target.value)}
-            required
             style={styles.input}
           />
           <input
@@ -83,7 +87,6 @@ const Register = () => {
             placeholder="City"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            required
             style={styles.input}
           />
           <input
@@ -91,7 +94,6 @@ const Register = () => {
             placeholder="State"
             value={state}
             onChange={(e) => setState(e.target.value)}
-            required
             style={styles.input}
           />
           <input
@@ -99,7 +101,6 @@ const Register = () => {
             placeholder="Zip"
             value={zip}
             onChange={(e) => setZip(e.target.value)}
-            required
             style={styles.input}
           />
           <input
@@ -107,7 +108,6 @@ const Register = () => {
             placeholder="Country"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            required
             style={styles.input}
           />
           <button type="submit" style={styles.button}>Sign Up</button>

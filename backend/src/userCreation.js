@@ -41,6 +41,12 @@ const userCollection = {
                 country: {
                     value: userData.country || "USA",
                     required: false
+                },
+                isAdmin: {
+                    value: false
+                },
+                notifications: {
+                    value: true
                 }
             };
 
@@ -54,7 +60,9 @@ const userCollection = {
                 city: signupSchema.city.value,
                 state: signupSchema.state.value,
                 zip: signupSchema.zip.value,
-                country: signupSchema.country.value
+                country: signupSchema.country.value,
+                isAdmin: signupSchema.isAdmin.value,
+                notifications: signupSchema.notifications.value,
             };
 
             // Insert the new user into the collection

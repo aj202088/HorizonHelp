@@ -1,5 +1,3 @@
-// src/pages/DashboardPage.jsx
-
 import React, { useEffect, useState } from "react";
 import MapComponent from "../components/MapComponent";
 import ButtonsTop from "../components/ButtonsTop";
@@ -80,128 +78,106 @@ const DashboardPage = () => {
     }
   };
 
-  const handleEditChange = (e) => {
-    setEditedUser({ ...editedUser, [e.target.name]: e.target.value });
-  };
-
-  const handleSave = async () => {
+  const handleSaveEdit = async () => {
     try {
-      const response = await axios.put(`http://localhost:5750/user/${user._id}`, editedUser);
-      if (response.data.success) {
+      const res = await axios.put(`http://localhost:5750/user/${user._id}`, editedUser);
+      if (res.data.success) {
         setUser(editedUser);
         setEditing(false);
-      } else {
-        alert("Failed to update profile.");
       }
     } catch (err) {
-      console.error("Error updating user:", err);
-      alert("Error saving changes.");
+      console.error("Failed to save edits:", err);
     }
   };
 
   return (
     <div style={{
-      backgroundImage: 'url(/src/assets/forest.jpg)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      height: '100vh',
-      width: '100vw',
-      padding: '2rem',
-      boxSizing: 'border-box',
-      position: 'relative',
-      color: "#fff"
+      height: "100vh",
+      width: "100vw",
+      backgroundImage: 'linear-gradient(rgba(17, 27, 10, 0.6), rgba(17, 27, 10, 0.6)), url("/src/assets/forest.jpg")',
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      color: "white",
+      padding: "2rem",
+      boxSizing: "border-box",
+      fontFamily: "Inter, sans-serif"
     }}>
-      <div style={{
-        position: "absolute",
-        top: "0",
-        left: "0",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(34, 63, 40, 0.5)",
-        zIndex: -1
-      }}></div>
-
       <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
         <ButtonsTop onPress={() => setShowAccount(!showAccount)}>Account</ButtonsTop>
         <ButtonsTop onPress={() => {
           localStorage.clear();
           window.location.href = "/login";
         }}>Log out</ButtonsTop>
-        <ButtonsTop>Resources</ButtonsTop>
-        <ButtonsTop>First Responder? Click Here</ButtonsTop>
-        <ButtonsTop>View Alert Inbox</ButtonsTop>
+        <ButtonsTop onPress={() => { }}>Resources</ButtonsTop>
+        <ButtonsTop onPress={() => { }}>First Responder? Click Here</ButtonsTop>
+        <ButtonsTop onPress={() => { }}>View Alert Inbox</ButtonsTop>
       </div>
 
       {showAccount && (
         <div style={{
-          position: "absolute", top: "6rem", left: "2rem", zIndex: 10,
-          backgroundColor: "#111", borderRadius: "10px", padding: "1rem", width: "280px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.3)", color: "#fff"
+          position: "absolute",
+          top: "6rem",
+          left: "2rem",
+          zIndex: 10,
+          backgroundColor: "#111",
+          borderRadius: "10px",
+          padding: "1.5rem",
+          width: "300px",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         }}>
-          <img src={droplet} alt="avatar" style={{
-            width: "80px", height: "80px", borderRadius: "50%",
-            display: "block", margin: "0 auto"
-          }} />
-          <h3 style={{ textAlign: "center", marginTop: "0.5rem", fontWeight: "bold" }}>{user?.name || "Name not found"}</h3>
-          <p><strong>Email:</strong> {user?.email}</p>
+          <img src={droplet} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
+          <h3 style={{ textAlign: "center", marginTop: "0.5rem", color: "#fff", fontWeight: "bold", fontSize: "1.2rem" }}>
+            {user?.name || "Name not found"}
+          </h3>
 
-          {["phone", "street", "city", "state", "zip", "country"].map((field) => (
-            <div key={field}>
-              <strong>{field.charAt(0).toUpperCase() + field.slice(1)}:</strong>{" "}
-              {editing ? (
-                <input
-                  name={field}
-                  value={editedUser[field] || ""}
-                  onChange={handleEditChange}
-                  style={{ backgroundColor: "#333", color: "#fff", border: "none", borderRadius: "4px", padding: "4px", marginTop: "2px", width: "100%" }}
-                />
-              ) : (
-                user?.[field] || "N/A"
-              )}
-            </div>
-          ))}
-
-          <button
-            onClick={editing ? handleSave : () => setEditing(true)}
-            style={{
-              marginTop: "1rem",
-              width: "100%",
-              padding: "0.5rem",
-              backgroundColor: "#ffa500",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontWeight: "bold"
-            }}
-          >
-            {editing ? "Save" : "Edit"}
-          </button>
+          <div style={{ fontSize: "14px", marginTop: "1rem" }}>
+            <p><strong>Email:</strong> {user?.email || "N/A"}</p>
+            {editing ? (
+              <>
+                <label>Phone: <input value={editedUser.phone || ""} onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })} /></label><br />
+                <label>Street: <input value={editedUser.street || ""} onChange={(e) => setEditedUser({ ...editedUser, street: e.target.value })} /></label><br />
+                <label>City: <input value={editedUser.city || ""} onChange={(e) => setEditedUser({ ...editedUser, city: e.target.value })} /></label><br />
+                <label>State: <input value={editedUser.state || ""} onChange={(e) => setEditedUser({ ...editedUser, state: e.target.value })} /></label><br />
+                <label>Zip: <input value={editedUser.zip || ""} onChange={(e) => setEditedUser({ ...editedUser, zip: e.target.value })} /></label><br />
+                <label>Country: <input value={editedUser.country || ""} onChange={(e) => setEditedUser({ ...editedUser, country: e.target.value })} /></label><br />
+                <button onClick={handleSaveEdit} style={{ marginTop: "0.5rem", backgroundColor: "#ffa500", color: "#000", padding: "0.4rem 1rem", borderRadius: "5px", border: "none" }}>Save</button>
+              </>
+            ) : (
+              <>
+                <p><strong>Phone:</strong> {user?.phone || "N/A"}</p>
+                <p><strong>Street:</strong> {user?.street || "N/A"}</p>
+                <p><strong>City:</strong> {user?.city || "N/A"}</p>
+                <p><strong>State:</strong> {user?.state || "N/A"}</p>
+                <p><strong>ZIP:</strong> {user?.zip || "N/A"}</p>
+                <p><strong>Country:</strong> {user?.country || "N/A"}</p>
+                <button onClick={() => setEditing(true)} style={{ marginTop: "0.5rem", backgroundColor: "#ffa500", color: "#000", padding: "0.4rem 1rem", borderRadius: "5px", border: "none" }}>Edit</button>
+              </>
+            )}
+          </div>
         </div>
       )}
 
       <div style={{ display: "flex", marginTop: "8rem", alignItems: "flex-start", gap: "2rem" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <h1 style={{ fontSize: "3rem", fontWeight: "bold", textShadow: "1px 1px 5px #000" }}>HorizonHelp</h1>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ fontSize: "3rem", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.6)" }}>HorizonHelp</h1>
           <p style={{
             fontSize: "18px",
-            color: "#e0e0e0",
-            fontWeight: "500",
-            textShadow: "1px 1px 3px #000",
-            maxWidth: "90%"
+            fontWeight: 500,
+            maxWidth: "90%",
+            textShadow: "1px 1px 3px rgba(0,0,0,0.6)"
           }}>
-            HorizonHelp is an emergency response application that provides users with real-time alerts,
-            heatmaps indicating severity of local fires, and informational help and resources.
+            HorizonHelp is an emergency response application that provides users with real-time alerts, heatmaps indicating severity of local fires, and informational help and resources.
           </p>
 
           <div style={{
             marginTop: "1.5rem",
-            background: "rgba(0, 0, 0, 0.6)",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
             padding: "1rem",
-            borderRadius: "8px",
-            color: "white",
-            maxWidth: "90%",
+            borderRadius: "12px",
+            maxWidth: "100%",
+            boxShadow: "0 8px 16px rgba(0,0,0,0.3)"
           }}>
-            <h2 style={{ marginBottom: "0.5rem" }}>Alerts</h2>
+            <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Alerts</h2>
             {notifications.length === 0 ? (
               <p>No alerts yet.</p>
             ) : (
@@ -216,17 +192,16 @@ const DashboardPage = () => {
                 </div>
               ))
             )}
-
             <textarea
               placeholder="Write your message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              style={{ width: "100%", height: "60px", marginTop: "0.5rem", padding: "0.5rem", borderRadius: "4px", background: "#222", color: "#fff" }}
+              style={{ width: "100%", height: "60px", marginTop: "0.5rem", padding: "0.5rem", borderRadius: "4px", backgroundColor: "#222", color: "white", border: "1px solid #444" }}
             />
             <button
               onClick={handleSend}
               disabled={isSubmitting}
-              style={{ marginTop: "0.5rem", padding: "0.5rem 1rem", backgroundColor: "#ffa500", color: "#111", border: "none", borderRadius: "4px", cursor: "pointer" }}
+              style={{ marginTop: "0.5rem", padding: "0.5rem 1rem", backgroundColor: "#FFA500", color: "#000", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
             >
               {isSubmitting ? "Sending..." : "Send Notification"}
             </button>

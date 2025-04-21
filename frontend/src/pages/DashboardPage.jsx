@@ -94,7 +94,8 @@ const DashboardPage = () => {
     <div style={{
       height: "100vh",
       width: "100vw",
-      backgroundImage: 'linear-gradient(rgba(17, 27, 10, 0.6), rgba(17, 27, 10, 0.6)), url("/src/assets/forest.jpg")',
+      backgroundImage: 'linear-gradient(rgba(5, 25, 5, 0.85), rgba(5, 25, 5, 0.85)), url("/src/assets/forest.jpg")',
+      //backgroundImage: 'linear-gradient(rgba(17, 27, 10, 0.6), rgba(17, 27, 10, 0.6)), url("/src/assets/forest.jpg")',
       backgroundSize: "cover",
       backgroundPosition: "center",
       color: "white",

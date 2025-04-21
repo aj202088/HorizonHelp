@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MapComponent from "../components/MapComponent";
+import ButtonsTop from "../components/ButtonsTop";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
 import axios from "axios";
 
@@ -76,75 +77,59 @@ const DashboardPage = () => {
   };
 
   return (
-    <div style={{ display: "flex", color: "white", width: "100vw", boxSizing: "border-box", overflowX: "hidden", height: "100vh" }}>
-      {/* Left: Map Area */}
-      <div style={{ flex: 1, padding: "2rem" }}>
-        <h1>Welcome to the Dashboard</h1>
-        <p>This is the homepage after a successful login.</p>
+    <div style={{  background: 'radial-gradient(92.52% 55.47% at 25.97% 50%, #DCAA7E 0%, #C56715 48.56%, #EE8523 100%)', padding: "2rem", minHeight: '100vh', width: '100vw',}}>
 
-        <div style={{ marginTop: "2rem" }}>
-          {coords ? (
-            <MapComponent position={coords} />
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <p>Loading your map...</p>
-          )}
-        </div>
+     <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
+    {/* Buttons to view other things  */}
+    <ButtonsTop onPress={() => {}}>Account</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>Log out</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>Resources</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>First Responder? Click Here</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>View Alert Inbox</ButtonsTop>
+    </div> 
+    <div
+        style={{
+          display: "flex",
+          marginTop: "4rem",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "5rem",
+          gap: "2rem",
+        }}
+      >
+    <div style={{ maxWidth: "60%", marginTop: "-25rem" }}>
+        <h1 style={{ fontSize: "3rem", fontWeight: "bold" }}>HorizonHelp</h1>
+        <p
+          style={{
+            color: "#69605A",
+            fontFamily: "Inter, sans-serif",
+            fontSize: "20px",
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+            letterSpacing: "-0.4px",
+          }}
+        >
+          HorizonHelp is an emergency response application that provides users
+          with real-time alerts, heatmaps indicating severity of local fires,
+          and informational help and resources to its users.
+        </p>
       </div>
-
-      {/* Right: Notifications Panel */}
-      <div style={{
-        width: "400px",
-        backgroundColor: "#1a1a1a",
-        padding: "1rem",
-        borderLeft: "1px solid #333",
-        overflowY: "auto"
-      }}>
-        <h2>Notifications</h2>
-
-        {notifications.length === 0 ? (
-          <p>No notifications yet.</p>
+      {/* Move map to same flex box beside text*/}
+      <div style={{ flex: 1 }}>
+        {/* Show map */}
+        {coords ? (
+          <MapComponent position={coords} />
+        ) : error ? (
+          // If there's an error then return error
+          <p>{error}</p>
         ) : (
-          notifications.map((note, index) => (
-            <div key={index} style={{
-              backgroundColor: "#333",
-              padding: "0.5rem",
-              marginBottom: "0.5rem",
-              borderRadius: "5px"
-            }}>
-              {note.message}
-            </div>
-          ))
+          // While loading the data and geocoding coords
+          <p>Loading your map...</p>
         )}
-
-        <div style={{ marginTop: "1rem" }}>
-          <textarea
-            placeholder="Write your message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            style={{ width: "100%", height: "60px", padding: "0.5rem", borderRadius: "4px" }}
-          />
-          <button
-            onClick={handleSend}
-            disabled={isSubmitting}
-            style={{
-              marginTop: "0.5rem",
-              padding: "0.5rem 1rem",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer"
-            }}
-          >
-            {isSubmitting ? "Sending..." : "Send Notification"}
-          </button>
-          {success && <p style={{ color: "green", marginTop: "0.5rem" }}>{success}</p>}
-          {err && <p style={{ color: "red", marginTop: "0.5rem" }}>{err}</p>}
-        </div>
       </div>
     </div>
+  </div>
   );
 };
 

@@ -21,7 +21,10 @@ const userCollection = {
                     value: userData.password,
                     required: true
                 },
-                // If they want to leave address and City optional and default to San Francisco PD
+                phone: {
+                    value: userData.phone || "", // optional
+                    required: false
+                },
                 street: {
                     value: userData.street || "1251 3rd St",
                     required: false
@@ -53,12 +56,11 @@ const userCollection = {
                 }
             };
 
-            // TODO: implement error throwing when field is missing
-
             // Create the new user info
             const userInformation = {
                 email: signupSchema.email.value,
                 password: signupSchema.password.value,
+                phone: signupSchema.phone.value,
                 street: signupSchema.street.value,
                 city: signupSchema.city.value,
                 state: signupSchema.state.value,

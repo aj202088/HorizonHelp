@@ -24,7 +24,7 @@
 
 3. Start up the backend server:
    ```bash
-   node .\\server.js
+   node .\server.js
 
 4. Navigate to the frontend on new terminal:
    ```bash

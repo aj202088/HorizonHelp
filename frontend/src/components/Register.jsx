@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
@@ -5,7 +6,7 @@ import { getCoordinatesFromAddress } from "../Utils/geocode";
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState(""); // New phone number state
+  const [phone, setPhone] = useState("");
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -35,7 +36,7 @@ const Register = () => {
         body: JSON.stringify({
           email,
           password,
-          phone, // Include phone in the request
+          phone,
           street,
           city,
           state,
@@ -60,95 +61,77 @@ const Register = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Create Account</h2>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Street"
-            value={street}
-            onChange={(e) => setStreet(e.target.value)}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="City"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="State"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Zip"
-            value={zip}
-            onChange={(e) => setZip(e.target.value)}
-            style={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            style={styles.input}
-          />
-          <button type="submit" style={styles.button}>Sign Up</button>
-        </form>
-        <p style={styles.linkText}>
-          Already have an account?{" "}
-          <a href="/login" style={styles.link}>Log in</a>
-        </p>
+    <div style={styles.page}>
+      <div style={styles.overlay}></div>
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <h2 style={styles.title}>Create Account</h2>
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={styles.input} />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required style={styles.input} />
+            <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} style={styles.input} />
+            <input type="text" placeholder="Street" value={street} onChange={(e) => setStreet(e.target.value)} style={styles.input} />
+            <input type="text" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} style={styles.input} />
+            <input type="text" placeholder="State" value={state} onChange={(e) => setState(e.target.value)} style={styles.input} />
+            <input type="text" placeholder="Zip" value={zip} onChange={(e) => setZip(e.target.value)} style={styles.input} />
+            <input type="text" placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} style={styles.input} />
+            <button type="submit" style={styles.button}>Sign Up</button>
+          </form>
+          <p style={styles.linkText}>Already have an account? <a href="/login" style={styles.link}>Log in</a></p>
+        </div>
+
+        <div style={styles.welcomeSection}>
+          <h1 style={styles.welcomeTitle}><span role="img" aria-label="fire">🔥</span> Welcome to <span style={{ color: "#FFA733" }}>HorizonHelp</span></h1>
+          <p style={styles.welcomeText}>Your go-to platform for <span style={{ color: "#FFA733" }}>fire alerts, safety tracking</span>, and <span style={{ color: "#FFA733" }}>first responder coordination</span>.</p>
+          <p style={styles.welcomeSubtext}>Stay informed. Stay safe. Stay connected.</p>
+        </div>
       </div>
     </div>
   );
 };
 
 const styles = {
+  page: {
+    position: "relative",
+    height: "100vh",
+    width: "100vw",
+    backgroundImage: "url(/src/assets/forest.jpg)",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0,0,0,0.4)",
+    zIndex: 0,
+  },
   container: {
     display: "flex",
-    justifyContent: "center",
+    zIndex: 1,
+    width: "100%",
+    height: "100%",
     alignItems: "center",
-    height: "100vh",
-    backgroundColor: "#1e1e1e",
+    justifyContent: "space-evenly",
+    padding: "2rem",
+    boxSizing: "border-box",
   },
   card: {
-    backgroundColor: "#2c2c2c",
-    padding: "40px",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    padding: "2rem",
     borderRadius: "10px",
-    textAlign: "center",
+    width: "400px",
     color: "#fff",
-    width: "350px",
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
   },
   title: {
     fontSize: "24px",
@@ -157,22 +140,22 @@ const styles = {
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "15px",
+    gap: "12px",
+    width: "100%",
   },
   input: {
     padding: "12px",
     fontSize: "16px",
     borderRadius: "5px",
     border: "none",
-    outline: "none",
-    backgroundColor: "#3c3c3c",
+    backgroundColor: "#2a2a2a",
     color: "#fff",
   },
   button: {
     padding: "12px",
     fontSize: "16px",
-    backgroundColor: "#61dafb",
-    color: "#222",
+    backgroundColor: "#FFA733",
+    color: "#fff",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
@@ -181,12 +164,33 @@ const styles = {
   linkText: {
     marginTop: "15px",
     fontSize: "14px",
-    color: "#aaa",
+    color: "#ccc",
   },
   link: {
-    color: "#61dafb",
+    color: "#FFA733",
     textDecoration: "none",
     fontWeight: "bold",
+  },
+  welcomeSection: {
+    color: "white",
+    maxWidth: "550px",
+    textShadow: "2px 2px 6px rgba(0, 0, 0, 0.9)",
+    zIndex: 1,
+  },
+  welcomeTitle: {
+    fontSize: "40px",
+    fontWeight: "bold",
+    marginBottom: "15px",
+  },
+  welcomeText: {
+    fontSize: "20px",
+    color: "#ddd",
+  },
+  welcomeSubtext: {
+    fontSize: "16px",
+    color: "#ccc",
+    marginTop: "15px",
+    fontStyle: "italic",
   },
 };
 

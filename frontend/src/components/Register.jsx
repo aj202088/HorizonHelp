@@ -69,7 +69,7 @@ const Register = () => {
         <div style={styles.card}>
           <h2 style={styles.title}>Create Account</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
-            <input type="name" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} required style={styles.input} />
+            <input type="text" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} required style={styles.input} />
             <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={styles.input} />
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required style={styles.input} />
             <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} style={styles.input} />

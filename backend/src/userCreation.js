@@ -13,7 +13,7 @@ const userCollection = {
             // New user schema
             const signupSchema = {
                 name: {
-                    value: userData.name || "", // optional or required as you prefer
+                    value: userData.name || "",
                     required: false
                 },
                 email: {
@@ -26,7 +26,7 @@ const userCollection = {
                     required: true
                 },
                 phone: {
-                    value: userData.phone || "", // optional
+                    value: userData.phone || "N/A",
                     required: false
                 },
                 street: {

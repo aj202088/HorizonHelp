@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Added Link for routing
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -21,8 +21,6 @@ const Login = () => {
       const data = await response.json();
 
       if (data.success && data.user) {
-        console.log("Login successful:", data);
-        // Store user email to access it on the dashboard
         localStorage.setItem("userEmail", data.user.email);
         navigate("/dashboard");
       } else {
@@ -36,7 +34,7 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      {/* Login Section */}
+      {/* Login Card */}
       <div style={styles.card}>
         <h2 style={styles.title}>Login</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -58,9 +56,8 @@ const Login = () => {
           />
           <button type="submit" style={styles.button}>Login</button>
 
-          {/* Register Link */}
           <p style={styles.registerText}>
-            Don't have an account?{" "}
+            Don’t have an account?{" "}
             <Link to="/register" style={styles.registerLink}>Register here</Link>
           </p>
         </form>
@@ -68,96 +65,107 @@ const Login = () => {
 
       {/* Welcome Section */}
       <div style={styles.welcomeSection}>
-        <h1 style={styles.welcomeTitle}>Welcome to HorizonHelp</h1>
+        <h1 style={styles.welcomeTitle}>
+          <span role="img" aria-label="fire">🔥</span>{" "}
+          Welcome to <span style={{ color: "#f7971e" }}>HorizonHelp</span>
+        </h1>
         <p style={styles.welcomeText}>
-          Your go-to platform for fire alerts, safety tracking, and first responder coordination.
+          Your go-to platform for <span style={styles.orange}>fire alerts</span>,{" "}
+          <span style={styles.orange}>safety tracking</span>, and{" "}
+          <span style={styles.orange}>first responder coordination</span>.
         </p>
-        <p style={styles.welcomeSubtext}>Stay informed. Stay safe. Stay connected.</p>
+        <p style={styles.subtext}>Stay informed. Stay safe. Stay connected.</p>
       </div>
     </div>
   );
 };
 
-// Styles
 const styles = {
   container: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     height: "100vh",
-    backgroundColor: "#1e1e1e",
+    backgroundImage: `url("/forest.jpg")`, // make sure forest.jpg is in public folder
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    padding: "2rem",
+    gap: "4rem",
   },
   card: {
-    flex: 1,
-    backgroundColor: "#2c2c2c",
-    padding: "40px",
-    borderRadius: "10px",
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-    textAlign: "center",
-    color: "#fff",
+    backdropFilter: "blur(8px)",
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    borderRadius: "12px",
+    padding: "3rem",
+    color: "white",
     maxWidth: "350px",
-    marginLeft: "8%",
+    width: "100%",
+    boxShadow: "0 0 30px rgba(0,0,0,0.5)",
   },
   title: {
-    fontSize: "24px",
+    fontSize: "26px",
     fontWeight: "bold",
+    marginBottom: "1rem",
+    textAlign: "center",
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "15px",
+    gap: "1rem",
   },
   input: {
     padding: "12px",
     fontSize: "16px",
-    borderRadius: "5px",
+    borderRadius: "6px",
     border: "none",
-    outline: "none",
-    backgroundColor: "#3c3c3c",
+    backgroundColor: "#2c2c2c",
     color: "#fff",
   },
   button: {
     padding: "12px",
     fontSize: "16px",
-    backgroundColor: "#61dafb",
-    color: "#222",
+    backgroundColor: "#f7971e",
+    color: "white",
     border: "none",
-    borderRadius: "5px",
+    borderRadius: "6px",
     cursor: "pointer",
     fontWeight: "bold",
   },
   registerText: {
     fontSize: "14px",
+    textAlign: "center",
     color: "#ccc",
-    marginTop: "10px",
+    marginTop: "0.5rem",
   },
   registerLink: {
-    color: "#61dafb",
+    color: "#f7971e",
+    fontWeight: "bold",
     textDecoration: "underline",
-    cursor: "pointer",
   },
   welcomeSection: {
-    flex: 2,
-    padding: "60px",
-    color: "#fff",
-    textAlign: "left",
+    flex: 1,
+    color: "white",
     maxWidth: "600px",
+    textShadow: "1px 1px 4px #000",
   },
   welcomeTitle: {
-    fontSize: "40px",
+    fontSize: "42px",
     fontWeight: "bold",
-    marginBottom: "15px",
+    marginBottom: "1rem",
   },
   welcomeText: {
     fontSize: "20px",
-    color: "#ddd",
-    maxWidth: "500px",
+    lineHeight: 1.6,
   },
-  welcomeSubtext: {
+  subtext: {
     fontSize: "16px",
-    color: "#aaa",
-    marginTop: "15px",
+    color: "#ddd",
+    marginTop: "1rem",
     fontStyle: "italic",
+  },
+  orange: {
+    color: "#ffa726",
+    fontWeight: "bold",
   },
 };
 

@@ -17,15 +17,24 @@
    ```bash  
    git clone https://github.com/aj202088/HorizonHelp.git
 
-2. Navigate to the frontend
+2. Navigate to backend:
    ```bash
    cd HorizonHelp
-   cd frontend
+   cd backend/src
+
+3. Start up the backend server:
+   ```bash
+   node .\\server.js
+
+4. Navigate to the frontend on new terminal:
+   ```bash
+   cd .HorizonHelp
+   cd frontend/src
    
-3. Install Dependencies:
+5. Install Dependencies:
    ```bash
    npm install
 
-4. Run the file
+6. Run the file:
    ```bash
    npm run dev

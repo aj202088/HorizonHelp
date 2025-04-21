@@ -279,6 +279,28 @@ app.get("/api/pending-admins", async (req, res) => {
     }
 });
 
+app.get("/api/users-count", async (req, res) => {
+    try {
+      const db = connect.getDB();
+      const count = await db.collection("users").countDocuments();
+      res.json({ success: true, count });
+    } catch (err) {
+      console.error("Error fetching users count:", err);
+      res.status(500).json({ success: false, message: "Internal server error." });
+    }
+  });
+
+  app.get("/api/alerts-sent", async (req, res) => {
+    try {
+      const db = connect.getDB();
+      const count = await db.collection("notifications").countDocuments({ type: "admin-broadcast" });
+      res.json({ success: true, count });
+    } catch (err) {
+      console.error("Error fetching alerts count:", err);
+      res.status(500).json({ success: false, message: "Internal server error." });
+    }
+  });
+
 // Creates our server to listen to requests on port 5750
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)

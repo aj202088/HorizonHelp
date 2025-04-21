@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
 
 const Register = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -34,6 +35,7 @@ const Register = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name,
           email,
           password,
           phone,
@@ -67,14 +69,15 @@ const Register = () => {
         <div style={styles.card}>
           <h2 style={styles.title}>Create Account</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
+            <input type="name" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} required style={styles.input} />
             <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={styles.input} />
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required style={styles.input} />
             <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} style={styles.input} />
-            <input type="text" placeholder="Street" value={street} onChange={(e) => setStreet(e.target.value)} style={styles.input} />
-            <input type="text" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} style={styles.input} />
-            <input type="text" placeholder="State" value={state} onChange={(e) => setState(e.target.value)} style={styles.input} />
-            <input type="text" placeholder="Zip" value={zip} onChange={(e) => setZip(e.target.value)} style={styles.input} />
-            <input type="text" placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} style={styles.input} />
+            <input type="street" placeholder="Street" value={street} onChange={(e) => setStreet(e.target.value)} style={styles.input} />
+            <input type="city" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} style={styles.input} />
+            <input type="state" placeholder="State" value={state} onChange={(e) => setState(e.target.value)} style={styles.input} />
+            <input type="zip" placeholder="Zip" value={zip} onChange={(e) => setZip(e.target.value)} style={styles.input} />
+            <input type="country" placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} style={styles.input} />
             <button type="submit" style={styles.button}>Sign Up</button>
           </form>
           <p style={styles.linkText}>Already have an account? <a href="/login" style={styles.link}>Log in</a></p>

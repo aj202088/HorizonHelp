@@ -12,6 +12,10 @@ const userCollection = {
         try {
             // New user schema
             const signupSchema = {
+                name: {
+                    value: userData.name || "", // optional or required as you prefer
+                    required: false
+                },
                 email: {
                     value: userData.email,
                     required: true,
@@ -58,6 +62,7 @@ const userCollection = {
 
             // Create the new user info
             const userInformation = {
+                name: signupSchema.name.value,
                 email: signupSchema.email.value,
                 password: signupSchema.password.value,
                 phone: signupSchema.phone.value,

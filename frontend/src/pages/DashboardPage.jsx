@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MapComponent from "../components/MapComponent";
+import ButtonsTop from "../components/ButtonsTop";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
 // src/pages/DashboardPage.jsx
 
@@ -57,12 +58,47 @@ const DashboardPage = () => {
   }, [email]);
 
   return (
-    <div style={{ color: "white", padding: "2rem" }}>
-      <h1>Welcome to the Dashboard</h1>
-      <p>This is the homepage after a successful login.</p>
+    <div style={{  background: 'radial-gradient(92.52% 55.47% at 25.97% 50%, #DCAA7E 0%, #C56715 48.56%, #EE8523 100%)', padding: "2rem", minHeight: '100vh', width: '100vw',}}>
 
-      <div style={{ marginTop: "2rem" }}>
-        {/* Show map once coordinates are loaded */}
+     <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
+    {/* Buttons to view other things  */}
+    <ButtonsTop onPress={() => {}}>Account</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>Log out</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>Resources</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>First Responder? Click Here</ButtonsTop>
+    <ButtonsTop onPress={() => {}}>View Alert Inbox</ButtonsTop>
+    </div> 
+    <div
+        style={{
+          display: "flex",
+          marginTop: "4rem",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "5rem",
+          gap: "2rem",
+        }}
+      >
+    <div style={{ maxWidth: "60%", marginTop: "-25rem" }}>
+        <h1 style={{ fontSize: "3rem", fontWeight: "bold" }}>HorizonHelp</h1>
+        <p
+          style={{
+            color: "#69605A",
+            fontFamily: "Inter, sans-serif",
+            fontSize: "20px",
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+            letterSpacing: "-0.4px",
+          }}
+        >
+          HorizonHelp is an emergency response application that provides users
+          with real-time alerts, heatmaps indicating severity of local fires,
+          and informational help and resources to its users.
+        </p>
+      </div>
+      {/* Move map to same flex box beside text*/}
+      <div style={{ flex: 1 }}>
+        {/* Show map */}
         {coords ? (
           <MapComponent position={coords} />
         ) : error ? (
@@ -74,9 +110,8 @@ const DashboardPage = () => {
         )}
       </div>
     </div>
+  </div>
   );
 };
 
-  
-  export default DashboardPage;
-  
+export default DashboardPage;

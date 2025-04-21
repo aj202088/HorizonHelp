@@ -5,6 +5,7 @@ const connect = require("./connect")
 const bcrypt = require("bcrypt");
 const userCollection = require("./userCreation");
 const { ObjectId } = require("mongodb");
+const { isAdmin } = require("./Middleware/auth");
 
 // Creating express application
 const app = express()
@@ -36,6 +37,7 @@ app.post("/api/register", async (req, res) => {
         zip: req.body.zip,
         country: req.body.country,
         isAdmin: req.body.isAdmin,
+        isAdminApproved: req.body.isAdminApproved,
         notifications: req.body.notifications
     };
 
@@ -240,6 +242,43 @@ app.get("/notifications/:userId", async (req, res) => {
         // Catch/log unexpected server errors
         console.error("Fetch notifications error:", err);
         res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
+
+app.get("/api/admin-status", async (req, res) => {
+    const email = req.query.email;
+    if (!email) {
+        return res.status(400).json({ success: false, message: "Email is required." });
+    }
+    try {
+        const user = await userCollection.findOne({ email });
+        // Allow users who either asked for admin access (pendingAdmin = true)
+        // OR have been approved (approvedAdmin = true)
+        if (!user || (!user.pendingAdmin && !user.approvedAdmin)) {
+            return res.status(403).json({ success: false, message: "Access denied. Admins only." });
+        }
+        res.json({
+            success: true,
+            isApprovedAdmin: Boolean(user.approvedAdmin),
+            adminData: user.approvedAdmin ? {} : null
+        });
+    } catch (err) {
+        console.error("Error fetching admin status:", err);
+        res.status(500).json({ success: false, message: "Internal server error." });
+    }
+});
+
+app.get("/api/pending-admins", async (req, res) => {
+    try {
+        const db = connect.getDB();
+        // Use the correct keys: pendingAdmin and approvedAdmin
+        const pendingAdmins = await db.collection('users')
+            .find({ pendingAdmin: true, approvedAdmin: false })
+            .toArray();
+        res.json({ success: true, pendingAdmins });
+    } catch (err) {
+        console.error("Error fetching pending admins:", err);
+        res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
 

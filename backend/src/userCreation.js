@@ -42,8 +42,11 @@ const userCollection = {
                     value: userData.country || "USA",
                     required: false
                 },
-                isAdmin: {
-                    value: false
+                pendingAdmin: {
+                    value: userData.pendingAdmin || false
+                },
+                approvedAdmin: { 
+                    value: false 
                 },
                 notifications: {
                     value: true
@@ -61,7 +64,8 @@ const userCollection = {
                 state: signupSchema.state.value,
                 zip: signupSchema.zip.value,
                 country: signupSchema.country.value,
-                isAdmin: signupSchema.isAdmin.value,
+                pendingAdmin: signupSchema.pendingAdmin.value,
+                approvedAdmin: signupSchema.approvedAdmin.value,
                 notifications: signupSchema.notifications.value,
             };
 

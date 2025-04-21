@@ -128,7 +128,7 @@ const DashboardPage = () => {
         }}>
           <img src={droplet} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
           <h3 style={{ textAlign: "center", marginTop: "0.5rem", color: "#fff", fontWeight: "bold", fontSize: "1.2rem" }}>
-            {user?.name || "" }
+            {user?.name || "Display Name"}
           </h3>
 
           <div style={{ fontSize: "14px", marginTop: "1rem" }}>

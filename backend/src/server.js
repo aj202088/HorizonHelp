@@ -5,7 +5,6 @@ const connect = require("./connect")
 const bcrypt = require("bcrypt");
 const userCollection = require("./userCreation");
 const { ObjectId } = require("mongodb");
-const incidentCollection = require("./incidentCollection");
 const { isAdmin } = require("./Middleware/auth");
 
 // Creating express application
@@ -30,8 +29,10 @@ connect.connectToServer()
 app.post("/api/register", async (req, res) => {
     // Get the user data
     const data = {
+        name: req.body.name,
         email: req.body.email,
         password: req.body.password,
+        phone: req.body.phone,
         street: req.body.street,
         city: req.body.city,
         state: req.body.state,
@@ -113,8 +114,8 @@ app.get("/user", async (req, res) => {
         }
         
         // Return needed data excluding PW for safety
-        const { street, city, state, zip, country, isAdmin, notifications, email: userEmail } = user;
-        res.json({ success: true, user: { email: userEmail, street, city, state, zip, country, isAdmin, notifications } });
+        const { name, phone, street, city, state, zip, country, isAdmin, notifications, email: userEmail } = user;
+        res.json({ success: true, user: { name, email: userEmail, phone, street, city, state, zip, country, isAdmin, notifications } });
     } 
     // Catch/log unexpected server errors
     catch (err) {
@@ -245,7 +246,7 @@ app.get("/notifications/:userId", async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
-
+// This endpoint is used to check if a user is an admin and approved admin
 app.get("/api/admin-status", async (req, res) => {
     const email = req.query.email;
     if (!email) {
@@ -268,7 +269,7 @@ app.get("/api/admin-status", async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 });
-
+// Endpoint to approve a pending admin request
 app.get("/api/pending-admins", async (req, res) => {
     try {
         const db = connect.getDB();
@@ -280,49 +281,6 @@ app.get("/api/pending-admins", async (req, res) => {
     } catch (err) {
         console.error("Error fetching pending admins:", err);
         res.status(500).json({ success: false, message: "Internal server error." });
-    }
-});
-
-// Get endpoint to get nearby incidents within a 100 mile radius of a users profile
-app.get("/incidents/nearby", async (req, res) => {
-    const { lat, lng } = req.query;
-    // Make sure there are coordinates 
-    if (!lat || !lng) {
-      return res.status(400).json({ success: false, message: "Missing coordinates" });
-    }
-  
-    try {
-        //
-        const incidents = await incidentCollection.getNearbyIncidents(
-            parseFloat(lat),
-            parseFloat(lng)
-        );
-  
-        // Format incidents before sending
-        const formatted = incidents.map((incident) => {
-            const [lng, lat] = incident.location.coordinates;
-            // Different intensity levels
-            const intensity = {
-                critical: 0.6,
-                high: 0.45, 
-                moderate: 0.3,
-                low: 0.15
-            // Default to low severity
-            }[incident.severity?.toLowerCase()] || 0.15;
-    
-            // Defined radius defaulted to 5 miles
-            const radius = incident.radius ? incident.radius * 1609.34 : 1609.34 * 5;
-        
-            // Exact shape expected by Leaflet.heat
-            return [lat, lng, intensity, radius];
-        });
-        // Locating nearby incidents was done successfully
-        res.json({ success: true, points: formatted });
-    } 
-    catch (err) {
-        // Catch/log unexpected server errors
-        console.error("Error fetching nearby incidents:", err);
-        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 

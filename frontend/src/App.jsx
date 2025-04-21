@@ -6,7 +6,6 @@ import Register from './components/Register'
 import AdminDashboard from "./pages/AdminDashboard";
 import PendingAdminPage from "./pages/PendingAdminPage";
 
-
 // ProtectedAdminRoute component checks if the user is an admin and approved admin
 // If not, redirects to the PendingAdminPage
 const ProtectedAdminRoute = ({ children }) => {
@@ -26,7 +25,6 @@ const ProtectedAdminRoute = ({ children }) => {
           //use isApprovedAdmin flag to determine approved status.
           setStatus({ loaded: true, approved: data.isApprovedAdmin, isAdmin: true });
         } else {
-          // Even if backend returns failure, leave isAdmin false.
           setStatus({ loaded: true, approved: false, isAdmin: false });
         }
       })

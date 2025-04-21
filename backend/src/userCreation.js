@@ -13,8 +13,8 @@ const userCollection = {
             // New user schema
             const signupSchema = {
                 name: {
-                    value: userData.name || "",
-                    required: false
+                    value: userData.name || "Unknown User",
+                    required: true
                 },
                 email: {
                     value: userData.email,

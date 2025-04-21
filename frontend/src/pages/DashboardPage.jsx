@@ -30,6 +30,7 @@ const DashboardPage = () => {
           setUser(data.user);
           setEditedUser(data.user);
           const { street, city, state, zip, country } = data.user;
+          //const { name, phone, street, city, state, zip, country } = data.user;
           const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
           const coordinates = await getCoordinatesFromAddress(fullAddress);
           if (coordinates) setCoords(coordinates);

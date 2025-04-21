@@ -15,6 +15,7 @@ const DashboardPage = () => {
   const [success, setSuccess] = useState("");
   const [err, setErr] = useState("");
   const [showAccount, setShowAccount] = useState(false);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   const email = localStorage.getItem("userEmail");
 
@@ -76,12 +77,17 @@ const DashboardPage = () => {
   };
 
   const toggleAccount = () => setShowAccount(!showAccount);
+  const toggleLogoutPopup = () => setShowLogoutPopup(!showLogoutPopup);
+  const handleLogout = () => {
+    localStorage.removeItem("userEmail");
+    window.location.href = "/login";
+  };
 
   return (
     <div style={{ background: 'radial-gradient(92.52% 55.47% at 25.97% 50%, #DCAA7E 0%, #C56715 48.56%, #EE8523 100%)', height: "100vh", width: "100vw", padding: "2rem", boxSizing: "border-box", position: "relative" }}>
       <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
         <ButtonsTop onPress={toggleAccount}>Account</ButtonsTop>
-        <ButtonsTop onPress={() => {}}>Log out</ButtonsTop>
+        <ButtonsTop onPress={toggleLogoutPopup}>Log out</ButtonsTop>
         <ButtonsTop onPress={() => {}}>Resources</ButtonsTop>
         <ButtonsTop onPress={() => {}}>First Responder? Click Here</ButtonsTop>
         <ButtonsTop onPress={() => {}}>View Alert Inbox</ButtonsTop>
@@ -98,6 +104,24 @@ const DashboardPage = () => {
           <p><strong>State:</strong> {user?.state || "N/A"}</p>
           <p><strong>ZIP:</strong> {user?.zip || "N/A"}</p>
           <p><strong>Country:</strong> {user?.country || "N/A"}</p>
+        </div>
+      )}
+
+      {showLogoutPopup && (
+        <div style={{ position: "absolute", top: "6rem", left: "10rem", zIndex: 10, backgroundColor: "#111", borderRadius: "10px", padding: "1rem", width: "250px", boxShadow: "0 4px 10px rgba(0,0,0,0.3)", color: "white" }}>
+          <h3 style={{ marginBottom: "1rem" }}>Are you sure you want to log out?</h3>
+          <button
+            onClick={handleLogout}
+            style={{ backgroundColor: "#ff4d4f", color: "white", border: "none", padding: "0.5rem 1rem", borderRadius: "5px", cursor: "pointer" }}
+          >
+            Yes, Log out
+          </button>
+          <button
+            onClick={toggleLogoutPopup}
+            style={{ marginLeft: "1rem", backgroundColor: "#555", color: "white", border: "none", padding: "0.5rem 1rem", borderRadius: "5px", cursor: "pointer" }}
+          >
+            Cancel
+          </button>
         </div>
       )}
 

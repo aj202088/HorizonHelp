@@ -20,7 +20,13 @@ const Login = () => {
 
       if (data.success && data.user) {
         localStorage.setItem("userEmail", data.user.email);
-        navigate("/dashboard");
+        localStorage.setItem("approvedAdmin", data.user.approvedAdmin);
+        if(data.user.approvedAdmin) {
+          navigate("/admin");
+        }
+        else {
+          navigate("/dashboard");
+        }
       } else {
         alert(data.message || "Login failed. Please check your credentials.");
       }

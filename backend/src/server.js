@@ -72,28 +72,24 @@ app.post("/api/register", async (req, res) => {
 //Log in user
 app.post("/login", async (req, res) => {
     try {
-        // Verify the user exists
         const check = await userCollection.findOne({ email: req.body.email });
         if (!check) {
-            // Return json error code 400 to frontend
-            res.status(400).json({sucess: false, message: "User not found."});
+            return res.status(400).json({ success: false, message: "User not found." });
         }
-        // Compare the hashed password from the database with the given password
         const isPasswordMatch = await bcrypt.compare(req.body.password, check.password);
         if (!isPasswordMatch) {
-            // User has inputted wrong password
-            res.status(400).json({success: false, message: "Incorrect password given."})
+            return res.status(400).json({ success: false, message: "Incorrect password given." });
         }
-        else {
-            // User has given correct credentials, send user data (excluding password)
-            const { street, city, state, zip, country, isAdmin, notifications, email: userEmail } = check;
-            res.json({success: true, message: "Success!", user: { email: userEmail, street, city, state, zip, country, isAdmin, notifications }});
-        }
-    }
-    catch (err) {
-        // Internal server error
-        console.error('Login Error:', err);
-        res.status(500).json({success: false, message: "Internal server error"});
+        // Destructure approvedAdmin and return it (instead of an undefined isAdmin)
+        const { name, email, approvedAdmin, street, city, state, zip, country, notifications } = check;
+        res.json({ 
+            success: true, 
+            message: "Success!", 
+            user: { name, email, approvedAdmin, street, city, state, zip, country, notifications } 
+        });
+    } catch (err) {
+        console.error("Login Error:", err);
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
 
@@ -250,19 +246,18 @@ app.get("/notifications/:userId", async (req, res) => {
 app.get("/api/admin-status", async (req, res) => {
     const email = req.query.email;
     if (!email) {
-        return res.status(400).json({ success: false, message: "Email is required." });
+        return res.status(400).json({ success: false, message: "Email required." });
     }
     try {
-        const user = await userCollection.findOne({ email });
-        // Allow users who either asked for admin access (pendingAdmin = true)
-        // OR have been approved (approvedAdmin = true)
-        if (!user || (!user.pendingAdmin && !user.approvedAdmin)) {
-            return res.status(403).json({ success: false, message: "Access denied. Admins only." });
+        const db = connect.getDB();
+        const user = await db.collection("users").findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found." });
         }
+        // Return the approvedAdmin flag as isApprovedAdmin
         res.json({
             success: true,
-            isApprovedAdmin: Boolean(user.approvedAdmin),
-            adminData: user.approvedAdmin ? {} : null
+            isApprovedAdmin: Boolean(user.approvedAdmin)
         });
     } catch (err) {
         console.error("Error fetching admin status:", err);

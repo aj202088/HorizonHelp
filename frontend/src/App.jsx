@@ -9,38 +9,38 @@ import PendingAdminPage from "./pages/PendingAdminPage";
 // ProtectedAdminRoute component checks if the user is an admin and approved admin
 // If not, redirects to the PendingAdminPage
 const ProtectedAdminRoute = ({ children }) => {
-  const [status, setStatus] = useState({ loaded: false, approved: false, isAdmin: false });
+  const [status, setStatus] = useState({ loaded: false, approved: false });
   const email = localStorage.getItem("userEmail");
+  const localApproved = localStorage.getItem("approvedAdmin") === "true";
 
   useEffect(() => {
     if (!email) {
-      setStatus({ loaded: true, approved: false, isAdmin: false });
+      setStatus({ loaded: true, approved: false });
       return;
     }
-    // Check admin status from backend by email
-    fetch(`http://localhost:5750/api/admin-status?email=${email}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          //use isApprovedAdmin flag to determine approved status.
-          setStatus({ loaded: true, approved: data.isApprovedAdmin, isAdmin: true });
-        } else {
-          setStatus({ loaded: true, approved: false, isAdmin: false });
-        }
-      })
-      .catch(err => {
-        console.error("Error checking admin status:", err);
-        setStatus({ loaded: true, approved: false, isAdmin: false });
-      });
-  }, [email]);
+    // Optionally use localStorage value if available
+    if (localApproved) {
+      setStatus({ loaded: true, approved: true });
+    } else {
+      // Check admin status from backend by email
+      fetch(`http://localhost:5750/api/admin-status?email=${email}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setStatus({ loaded: true, approved: data.isApprovedAdmin });
+          } else {
+            setStatus({ loaded: true, approved: false });
+          }
+        })
+        .catch(err => {
+          console.error("Error checking admin status:", err);
+          setStatus({ loaded: true, approved: false });
+        });
+    }
+  }, [email, localApproved]);
 
   if (!status.loaded) return <p>Loading...</p>;
-
-  // show the PendingAdminPage for everyone who is not an approved admin.
-  if (!status.isAdmin || (status.isAdmin && !status.approved)) 
-    return <PendingAdminPage />;
-
-  // Only approved admins get to see the admin dashboard.
+  if (!status.approved) return <Navigate to="/dashboard" />;
   return children;
 };
 

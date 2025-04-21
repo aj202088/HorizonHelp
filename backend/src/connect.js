@@ -18,10 +18,21 @@ const connectToServer = async function() {
       
       // Select the database
       db = client.db("horizonhelp");
+
+      // Removes notifications after 7 days once signed in
+      await db.collection("incidents").createIndex(
+        { timestamp: 1 },
+        // 7 days in seconds is 604800
+        { expireAfterSeconds: 604800 }
+      );
+      // define 2dsphere index for locations
+      db.collection("incidents").createIndex({ location: "2dsphere" })
+
       
       console.log("Successfully connected to MongoDB");
       return db;
-  } catch (err) {
+  } 
+  catch (err) {
       console.error("Failed to connect to MongoDB", err);
       throw err;
   }

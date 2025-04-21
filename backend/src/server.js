@@ -5,6 +5,7 @@ const connect = require("./connect")
 const bcrypt = require("bcrypt");
 const userCollection = require("./userCreation");
 const { ObjectId } = require("mongodb");
+const incidentCollection = require("./incidentCollection");
 
 // Creating express application
 const app = express()
@@ -240,6 +241,49 @@ app.get("/notifications/:userId", async (req, res) => {
         // Catch/log unexpected server errors
         console.error("Fetch notifications error:", err);
         res.status(500).json({ success: false, message: "Internal server error" });
+    }
+});
+
+// Get endpoint to get nearby incidents within a 100 mile radius of a users profile
+app.get("/incidents/nearby", async (req, res) => {
+    const { lat, lng } = req.query;
+    // Make sure there are coordinates 
+    if (!lat || !lng) {
+      return res.status(400).json({ success: false, message: "Missing coordinates" });
+    }
+  
+    try {
+        //
+        const incidents = await incidentCollection.getNearbyIncidents(
+            parseFloat(lat),
+            parseFloat(lng)
+        );
+  
+        // Format incidents before sending
+        const formatted = incidents.map((incident) => {
+            const [lng, lat] = incident.location.coordinates;
+            // Different intensity levels
+            const intensity = {
+                critical: 0.6,
+                high: 0.45, 
+                moderate: 0.3,
+                low: 0.15
+            // Default to low severity
+            }[incident.severity?.toLowerCase()] || 0.15;
+    
+            // Defined radius defaulted to 5 miles
+            const radius = incident.radius ? incident.radius * 1609.34 : 1609.34 * 5;
+        
+            // Exact shape expected by Leaflet.heat
+            return [lat, lng, intensity, radius];
+        });
+        // Locating nearby incidents was done successfully
+        res.json({ success: true, points: formatted });
+    } 
+    catch (err) {
+        // Catch/log unexpected server errors
+        console.error("Error fetching nearby incidents:", err);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 

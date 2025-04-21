@@ -6,6 +6,7 @@ import Register from './components/Register'
 import AdminDashboard from "./pages/AdminDashboard";
 import PendingAdminPage from "./pages/PendingAdminPage";
 
+
 // ProtectedAdminRoute component checks if the user is an admin and approved admin
 // If not, redirects to the PendingAdminPage
 const ProtectedAdminRoute = ({ children }) => {

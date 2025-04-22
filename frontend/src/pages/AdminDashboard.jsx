@@ -14,6 +14,8 @@ const AdminDashboard = () => {
   const [radius, setRadius] = useState(5);
   const [userAlerts, setUserAlerts] = useState([]);
   const adminEmail = localStorage.getItem("userEmail");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
 
   useEffect(() => {
     const fetchPendingAdmins = async () => {
@@ -90,6 +92,11 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  };  
+
   const handleResolve = async (alertId) => {
     try {
       await axios.put(`http://localhost:5750/notifications/resolve/${alertId}`, { resolved: true });
@@ -102,13 +109,77 @@ const AdminDashboard = () => {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1>Admin Dashboard</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1>Admin Dashboard</h1>
+          <button
+            onClick={() => setShowLogoutConfirm(true)}
+            style={{
+              padding: "0.6rem 1.2rem",
+              fontSize: "1rem",
+              backgroundColor: "#FFA500",
+              color: "#000",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              boxShadow: "0 0 10px rgba(238, 159, 12, 0.89)",
+              cursor: "pointer"
+            }}
+          >
+            Log Out
+          </button>
+        </div>
+
         <div style={styles.stats}>
           <div style={styles.card}><h3>Total Users</h3><p>{usersCount}</p></div>
           <div style={styles.card}><h3>Alerts Sent</h3><p>{alertsSent}</p></div>
           <div style={styles.card}><h3>Pending Requests</h3><p>{pendingAdmins.length}</p></div>
         </div>
       </header>
+
+      {showLogoutConfirm && (
+        <div style={{
+          position: "absolute",
+          top: "6rem",
+          right: "2rem",
+          backgroundColor: "#111",
+          padding: "1rem",
+          borderRadius: "8px",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+          zIndex: 1000
+        }}>
+          <p style={{ margin: 0, fontWeight: "bold" }}>Are you sure you want to log out?</p>
+          <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = "/login";
+              }}
+              style={{
+                backgroundColor: "#FFA500",
+                color: "#000",
+                border: "none",
+                padding: "0.4rem 1rem",
+                borderRadius: "5px"
+              }}
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => setShowLogoutConfirm(false)}
+              style={{
+                backgroundColor: "#444",
+                color: "#fff",
+                border: "none",
+                padding: "0.4rem 1rem",
+                borderRadius: "5px"
+              }}
+            >
+              No
+            </button>
+          </div>
+        </div>
+      )}
+
 
       <div style={styles.mainGrid}>
         <section style={styles.broadcastSection}>

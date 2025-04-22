@@ -68,7 +68,7 @@ const Login = () => {
 
       <div style={styles.welcomeSection}>
         <h1 style={styles.welcomeTitle}>
-          <span role="img" aria-label="fire">🔥</span> Welcome to <span style={{ color: "#FFA132" }}>HorizonHelp</span>
+          <span role="img" aria-label="fire">🔥</span> Welcome to <span style={{ color: "#FFA132" }}>HorizonHelp 🔥</span>
         </h1>
         <p style={styles.welcomeText}>
           Your go-to platform for <span style={{ color: "#FFA132" }}>fire alerts</span>, 
@@ -152,26 +152,33 @@ const styles = {
     color: "#FFA132",
     textDecoration: "underline"
   },
+
   welcomeSection: {
-    zIndex: 1,
+    flex: 2,
+    padding: "70px 40px 120px 120px", // top right bottom left
+    color: "#fff",
+    textAlign: "center",
     maxWidth: "600px",
-    paddingLeft: "3rem",
-    textShadow: "1px 1px 5px rgba(0,0,0,0.9)",
-    color: "white"
-  },
+    marginRight: "auto" // ensures it pushes left
+  },  
+
   welcomeTitle: {
-    fontSize: "42px",
+    fontSize: "39px",
     fontWeight: "bold",
-    marginBottom: "20px"
+    marginBottom: "50px",
+    textShadow: "2px 5px 5px rgba(0,0,0,0.6)"
   },
+
   welcomeText: {
-    fontSize: "20px",
+    fontSize: "24px",
     lineHeight: "1.6",
-    marginBottom: "10px"
+    marginBottom: "15px",
+    textShadow: "5px 5px 5px rgba(0,0,0,0.6)"
   },
   welcomeSubtext: {
     fontStyle: "italic",
-    fontSize: "15px"
+    fontSize: "18px",
+    textShadow: "5px 5px 5px rgba(0,0,0,0.6)"
   }
 };
 

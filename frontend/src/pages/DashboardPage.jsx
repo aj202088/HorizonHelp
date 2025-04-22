@@ -17,6 +17,7 @@ const DashboardPage = () => {
   const [showAccount, setShowAccount] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({});
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const email = localStorage.getItem("userEmail");
 

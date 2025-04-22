@@ -220,10 +220,14 @@ const DashboardPage = () => {
               onClick={handleSend}
               disabled={isSubmitting}
               style={{
-                marginTop: "0.5rem", padding: "0.5rem 1rem",
-                backgroundColor: "#FFA500", color: "#000",
-                border: "none", borderRadius: "4px",
-                cursor: "pointer", fontWeight: "bold"
+                marginTop: "0.5rem",
+                padding: "0.5rem 1rem",
+                backgroundColor: "#e38828", //button colour
+                color: "#fff", //text colour
+                border: "none", 
+                borderRadius: "4px",
+                cursor: "pointer", 
+                fontWeight: "bold"
               }}
             >
               {isSubmitting ? "Sending..." : "Send Notification"}

@@ -113,14 +113,24 @@ const DashboardPage = () => {
       color: "white",
       padding: "2rem",
       boxSizing: "border-box",
-      fontFamily: "Inter, sans-serif"
+      fontFamily: "Poppins, sans-serif"
     }}>
       <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
         <ButtonsTop onPress={() => setShowAccount(!showAccount)}>Account</ButtonsTop>
         <div style={{ position: "relative" }}>
           <ButtonsTop onPress={() => setShowLogoutConfirm(true)}>Log out</ButtonsTop>
           {showLogoutConfirm && (
-            <div style={{ position: "absolute", top: "3.5rem", left: 0, backgroundColor: "#111", padding: "1rem", borderRadius: "8px", boxShadow: "0 4px 10px rgba(0,0,0,0.5)", zIndex: 20 }}>
+            <div style={{ 
+              position: "absolute", 
+              top: "3.5rem", left: 0, 
+              backgroundColor: "#111", 
+              padding: "1.5rem", 
+              borderRadius: "12px", 
+              boxShadow: "0 0px 20px rgba(214, 144, 13, 0.91)", 
+              zIndex: 20,
+              minWidth: "260px",
+              fontSize: "1rem" 
+              }}>
               <p style={{ margin: 0, fontWeight: "bold" }}>Are you sure you want to log out?</p>
               <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
                 <button onClick={confirmLogout} style={{ backgroundColor: "#FFA500", color: "#000", border: "none", padding: "0.4rem 1rem", borderRadius: "5px" }}>Yes</button>
@@ -130,15 +140,15 @@ const DashboardPage = () => {
           )}
         </div>
         <ButtonsTop onPress={() => setShowResources(!showResources)}>Resources</ButtonsTop>
-        <ButtonsTop onPress={() => { }}>First Responder? Click Here</ButtonsTop>
-        <ButtonsTop onPress={() => { }}>View Alert Inbox</ButtonsTop>
+        {/*<ButtonsTop onPress={() => { }}>First Responder? Click Here</ButtonsTop>*/}
+        {/*<ButtonsTop onPress={() => { }}>View Alert Inbox</ButtonsTop>*/}
       </div>
 
       {showAccount && (
         <div style={{
           position: "absolute", top: "6rem", left: "2rem", zIndex: 10,
           backgroundColor: "#111", borderRadius: "10px", padding: "1.5rem",
-          width: "300px", boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          width: "300px", boxShadow: "0 4px 10px rgba(214, 144, 13, 0.91)",
         }}>
           <img src={droplet} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
           <h3 style={{ textAlign: "center", marginTop: "0.5rem", fontWeight: "bold" }}>{user?.name || "Name not found"}</h3>
@@ -177,16 +187,13 @@ const DashboardPage = () => {
       <div style={{ display: "flex", marginTop: "8rem", alignItems: "flex-start", gap: "2rem" }}>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: "3rem", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.6)" }}>HorizonHelp</h1>
-          <p style={{
-            fontSize: "18px", fontWeight: 500, maxWidth: "90%",
-            textShadow: "1px 1px 3px rgba(0,0,0,0.6)"
-          }}>
+          <p style={{fontSize: "20px", fontWeight: 500, maxWidth: "90%", textShadow: "1px 1px 3px rgba(0,0,0,0.6)"}}>
             HorizonHelp is an emergency response application that provides users with real-time alerts, heatmaps indicating severity of local fires, and informational help and resources.
           </p>
           <div style={{
             marginTop: "1.5rem", backgroundColor: "rgba(0, 0, 0, 0.7)",
             padding: "1rem", borderRadius: "12px", maxWidth: "100%",
-            boxShadow: "0 8px 16px rgba(0,0,0,0.3)"
+            boxShadow: "0 2px 22px rgba(203, 138, 17, 0.85)"
           }}>
             <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Alerts</h2>
             {notifications.length === 0 ? (
@@ -226,7 +233,12 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        <div style={{ flex: 1 }}>
+        <div style={{ 
+          flex: 1,  
+          backgroundColor: "rgba(0, 0, 0, 0)", 
+          padding: "1rem", 
+          borderRadius: "8px", 
+          boxShadow: "0 2px 20px rgba(218, 146, 12, 0.86)" }}>
           {coords ? (
             <MapComponent position={mapCenter || coords} />
           ) : error ? (

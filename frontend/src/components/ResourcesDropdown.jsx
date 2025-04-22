@@ -71,7 +71,7 @@ const ResourcesDropdown = ({ coords, onClose, onSelectResource }) => {
       borderRadius: "10px",
       width: "320px",
       zIndex: 20,
-      boxShadow: "0 4px 10px rgba(0,0,0,0.4)",
+      boxShadow: "0 4px 10px rgba(214, 144, 13, 0.91)",
       color: "#fff"
     }}>
       <h3 style={{ marginBottom: "0.5rem", fontSize: "18px" }}>Local Resources</h3>

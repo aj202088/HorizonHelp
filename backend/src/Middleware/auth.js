@@ -5,7 +5,9 @@ const isAdmin = async (req, res, next) => {
 
     try {
         const user = await userCollection.findOne({ email });
-        if (user && user.role === "admin") {
+        if (user && user.isAdmin === true) {
+            // Attach user info to request for later use
+            req.user = user;
             next(); // User is an admin, proceed to the next middleware or route
         } else {
             res.status(403).json({ success: false, message: "Access denied. Admins only." });

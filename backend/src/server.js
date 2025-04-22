@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const userCollection = require("./userCreation");
 const { ObjectId } = require("mongodb");
 const { isAdmin } = require("./Middleware/auth");
+const incidentCollection = require("./incidentCollection");
 
 // Creating express application
 const app = express()
@@ -110,8 +111,8 @@ app.get("/user", async (req, res) => {
         }
         
         // Return needed data excluding PW for safety
-        const { name, phone, street, city, state, zip, country, isAdmin, notifications, email: userEmail } = user;
-        res.json({ success: true, user: { name, email: userEmail, phone, street, city, state, zip, country, isAdmin, notifications } });
+        const { _id, name, phone, street, city, state, zip, country, isAdmin, notifications, email: userEmail } = user;
+        res.json({ success: true, user: { _id, name, email: userEmail, phone, street, city, state, zip, country, isAdmin, notifications } });
     } 
     // Catch/log unexpected server errors
     catch (err) {
@@ -121,40 +122,54 @@ app.get("/user", async (req, res) => {
 });
 
 // Post endpoint for admin to send notifications to all users in a specific city
-app.post("/notifications/admin-broadcast", async (req, res) => {
-    const { adminEmail, message, city } = req.body;
-
-    // Input validation
-    if (!adminEmail || !message || !city) {
-        return res.status(400).json({ success: false, message: "Missing required fields." });
-    }
-
+app.post("/notifications/admin-broadcast", isAdmin, async (req, res) => {
+    const { adminEmail, message, city, severity, radius = 5} = req.body;
+    // Access the db and relevant collections
+    const db = connect.getDB();
+    const usersCollection = db.collection("users");
+    const notificationsCollection = db.collection("notifications");
     try {
-        // Access the db and relevant collections
-        const db = connect.getDB();
-        const usersCollection = db.collection("users");
-        const notificationsCollection = db.collection("notifications");
-
-        // Check to see if sender is admin since only admins are allowed to send these broadcasts
-        const admin = await usersCollection.findOne({ email: adminEmail });
-        if (!admin || !admin.isAdmin) {
-            return res.status(403).json({ success: false, message: "Admins only."});
-        }
-
         // Find all users in the target city
         const recipients = await usersCollection.find({ city: { $regex: city, $options: "i" }}).toArray();
         const recipientIds = recipients.map(user => user._id)
+
+        // Geocode the city to get coordinates
+        const geoResponse = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`
+        );
+        const geoData = await geoResponse.json();
+
+        if (!geoData.length) {
+            return res.status(400).json({ success: false, message: "Could not geocode city." });
+        }
+
+        const lat = parseFloat(geoData[0].lat);
+        const lng = parseFloat(geoData[0].lon);
 
         // Create and store in-app notification
         await notificationsCollection.insertOne({
             type: "admin-broadcast",
             message,
-            from: admin._id,
+            from: req.user._id,
             to: recipientIds,
             city,
+            severity,
             readBy:[],
             createdAt: new Date()
         });
+
+        // Insert the incident (used for heatmap)
+        await db.collection("incidents").insertOne({
+            city,
+            severity: severity.toLowerCase(),
+            radius,
+            location: {
+            type: "Point",
+            coordinates: [lng, lat]
+            },
+            timestamp: new Date()
+        });
+
         // Notification was sent successfully
         res.json({ success: true, message: "Notification sent to users in specified city."});
     }
@@ -200,6 +215,7 @@ app.post("/notifications/user-alert", async (req, res) => {
             from: user._id,
             to: adminIds,
             readBy: [],
+            resolved: false,
             createdAt: new Date()
         });
         // Notification was sent successfully
@@ -228,7 +244,7 @@ app.get("/notifications/:userId", async (req, res) => {
 
         // Find all notifications where the user is a recipient
         const messages = await notificationsCollection
-            .find({ to: { $in: [ObjectId(userId)] } })
+            .find({ to: { $in: [new ObjectId(userId)] } })
             // Show most recent notifications first and in order
             .sort({ createdAt: -1 })
             .toArray();
@@ -242,6 +258,65 @@ app.get("/notifications/:userId", async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 });
+
+// Put request to handle whether a user alert has been handled or not
+app.put("/notifications/resolve/:id", async (req, res) => {
+    const db = connect.getDB();
+    try {
+      const result = await db.collection("notifications").updateOne(
+        { _id: new ObjectId(req.params.id) },
+        { $set: { resolved: req.body.resolved } }
+      );
+      res.json({ success: true, updated: result.modifiedCount });
+    } catch (err) {
+      console.error("Resolve update error:", err);
+      res.status(500).json({ success: false });
+    }
+  });
+
+// Get endpoint to get nearby incidents within a 100 mile radius of a users profile
+app.get("/incidents/nearby", async (req, res) => {
+    const { lat, lng } = req.query;
+    // Make sure there are coordinates 
+    if (!lat || !lng) {
+      return res.status(400).json({ success: false, message: "Missing coordinates" });
+    }
+  
+    try {
+        //
+        const incidents = await incidentCollection.getNearbyIncidents(
+            parseFloat(lat),
+            parseFloat(lng)
+        );
+  
+        // Format incidents before sending
+        const formatted = incidents.map((incident) => {
+            const [lng, lat] = incident.location.coordinates;
+            // Different intensity levels
+            const intensity = {
+                critical: 0.6,
+                high: 0.45, 
+                moderate: 0.3,
+                low: 0.15
+            // Default to low severity
+            }[incident.severity?.toLowerCase()] || 0.15;
+    
+            // Defined radius defaulted to 5 miles
+            const radius = incident.radius ? incident.radius * 1609.34 : 1609.34 * 5;
+        
+            // Exact shape expected by Leaflet.heat
+            return [lat, lng, intensity, radius];
+        });
+        // Locating nearby incidents was done successfully
+        res.json({ success: true, points: formatted });
+    } 
+    catch (err) {
+        // Catch/log unexpected server errors
+        console.error("Error fetching nearby incidents:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
 // This endpoint is used to check if a user is an admin and approved admin
 app.get("/api/admin-status", async (req, res) => {
     const email = req.query.email;
@@ -300,6 +375,41 @@ app.get("/api/users-count", async (req, res) => {
       res.status(500).json({ success: false, message: "Internal server error." });
     }
   });
+
+// GET endpoint to retrieve all user alerts for admins
+app.get("/user-alerts", async (req, res) => {
+    try {
+      const db = connect.getDB();
+      const notificationsCollection = db.collection("notifications");
+      const usersCollection = db.collection("users");
+  
+      const alerts = await notificationsCollection
+        .find({ type: "user-alert" })
+        .sort({ createdAt: -1 })
+        .toArray();
+  
+      // Populate sender info for each alert
+      const enriched = await Promise.all(alerts.map(async (alert) => {
+        const sender = await usersCollection.findOne({ _id: new ObjectId(alert.from) });
+        return {
+          ...alert,
+          sender: {
+            name: sender.name,
+            street: sender.street,
+            city: sender.city,
+            state: sender.state,
+            zip: sender.zip,
+            country: sender.country
+          }
+        };
+      }));
+  
+      res.json({ success: true, alerts: enriched });
+    } catch (err) {
+      console.error("Failed to fetch user alerts:", err);
+      res.status(500).json({ success: false, message: "Internal error" });
+    }
+ });
 
 // Creates our server to listen to requests on port 5750
 app.listen(PORT, () => {

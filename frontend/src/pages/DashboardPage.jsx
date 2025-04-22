@@ -4,6 +4,7 @@ import ButtonsTop from "../components/ButtonsTop";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
 import droplet from "../assets/droplet.png";
 import axios from "axios";
+import AdminDashboard from "./AdminDashboard";
 
 const DashboardPage = () => {
   const [coords, setCoords] = useState(null);
@@ -17,7 +18,6 @@ const DashboardPage = () => {
   const [showAccount, setShowAccount] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({});
-
   const email = localStorage.getItem("userEmail");
 
   useEffect(() => {
@@ -29,12 +29,21 @@ const DashboardPage = () => {
         if (data.success && data.user) {
           setUser(data.user);
           setEditedUser(data.user);
+
           const { street, city, state, zip, country } = data.user;
-          //const { name, phone, street, city, state, zip, country } = data.user;
           const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
           const coordinates = await getCoordinatesFromAddress(fullAddress);
           if (coordinates) setCoords(coordinates);
           else setError("Could not geocode address.");
+
+
+          if (data.user._id) {
+            const notifRes = await axios.get(`http://localhost:5750/notifications/${data.user._id}`);
+            console.log("Notifications fetched:", notifRes.data);
+            setNotifications(notifRes.data.messages);
+          } else {
+            console.warn("No user._id found. Skipping notifications fetch.");
+          }
         } else {
           setError("User not found.");
         }
@@ -50,8 +59,12 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (user?._id) {
+      console.log("Fetching notifications for user ID:", user._id);
       axios.get(`http://localhost:5750/notifications/${user._id}`)
-        .then(res => setNotifications(res.data.messages))
+        .then(res => {
+          console.log("Fetched notifications:", res.data);
+          res => setNotifications(res.data.messages);
+        })
         .catch(err => {
           console.error("Notification fetch error:", err);
           setErr("Failed to load notifications.");
@@ -90,7 +103,14 @@ const DashboardPage = () => {
       console.error("Failed to save edits:", err);
     }
   };
-
+  // Prevent render hook, user fetch errors
+  if (!user) {
+    return <p style={{ color: "white", textAlign: "center", marginTop: "4rem" }}>Loading...</p>;
+  }
+  // Show admin dashboard if this is an admin user
+  if (user?.isAdmin) {
+    return <AdminDashboard />;
+  }
   return (
     <div style={{
       height: "100vh",

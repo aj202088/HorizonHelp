@@ -10,7 +10,10 @@ const AdminDashboard = () => {
   const [city, setCity] = useState("");
   const [broadcastSuccess, setBroadcastSuccess] = useState("");
   const [broadcastError, setBroadcastError] = useState("");
-
+  const [severity, setSeverity] = useState("");
+  // Default set to 5 miles
+  const [radius, setRadius] = useState(5);
+  const [userAlerts, setUserAlerts] = useState([]);
   const adminEmail = localStorage.getItem("userEmail");
 
   useEffect(() => {
@@ -58,6 +61,21 @@ const AdminDashboard = () => {
     fetchAlertsSent();
   }, []);
 
+  useEffect(() => {
+    const fetchUserAlerts = async () => {
+      try {
+        const response = await axios.get("http://localhost:5750/user-alerts");
+        if (response.data.success) {
+          setUserAlerts(response.data.alerts);
+        }
+      } catch (err) {
+        console.error("Failed to load user alerts:", err);
+      }
+    };
+  
+    fetchUserAlerts();
+  }, []);
+
   const handleBroadcast = async () => {
     if (!message || !city) {
       setBroadcastError("Both message and city are required.");
@@ -65,9 +83,11 @@ const AdminDashboard = () => {
     }
     try {
       const response = await axios.post("http://localhost:5750/notifications/admin-broadcast", {
-        adminEmail,
+        email: adminEmail,
         message,
         city,
+        severity,
+        radius,
       });
       if (response.data.success) {
         setBroadcastSuccess(response.data.message);
@@ -110,6 +130,7 @@ const AdminDashboard = () => {
           onChange={(e) => setMessage(e.target.value)}
           style={styles.textarea}
         />
+
         <input 
           type="text"
           placeholder="Target City"
@@ -117,11 +138,54 @@ const AdminDashboard = () => {
           onChange={(e) => setCity(e.target.value)}
           style={styles.input}
         />
+
+        <select 
+          value={severity}
+          onChange={(e) => setSeverity(e.target.value)}
+          style={styles.input}
+        >
+          <option value="">Select Severity</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="moderate">Moderate</option>
+          <option value="low">Low</option>
+        </select>
+
+        <input 
+          type="number"
+          placeholder="Incident Radius (miles)"
+          value={radius}
+          onChange={(e) => setRadius(parseFloat(e.target.value))}
+          style={styles.input}
+        />
         <ButtonsTop onPress={handleBroadcast}>Send Alert</ButtonsTop>
         {broadcastSuccess && <p style={styles.success}>{broadcastSuccess}</p>}
         {broadcastError && <p style={styles.error}>{broadcastError}</p>}
       </section>
-
+      <section style={styles.inboxSection}>
+        <h2>User Alert Inbox</h2>
+        {userAlerts.map(alert => (
+          <div key={alert._id} style={styles.inboxCard}>
+            <p><strong>Name:</strong> {alert.sender.name}</p>
+            <p><strong>Address:</strong> {`${alert.sender.street}, ${alert.sender.city}, ${alert.sender.state} ${alert.sender.zip}, ${alert.sender.country}`}</p>
+            <p><strong>Message:</strong> {alert.message}</p>
+            <label>
+              Resolved:
+              <input
+                type="checkbox"
+                checked={alert.resolved}
+                onChange={async (e) => {
+                  const updated = e.target.checked;
+                  await axios.put(`http://localhost:5750/notifications/resolve/${alert._id}`, { resolved: updated });
+                  setUserAlerts(prev =>
+                    prev.map(a => a._id === alert._id ? { ...a, resolved: updated } : a)
+                  );
+                }}
+              />
+            </label>
+          </div>
+        ))}
+      </section>
       <section style={styles.pendingSection}>
         <h2>Pending Admin Requests</h2>
         {pendingAdmins.length === 0 ? (
@@ -204,6 +268,18 @@ const styles = {
     padding: "0.5rem 0",
     borderBottom: "1px solid #444",
   },
+  inboxSection: {
+    backgroundColor: "#2a2a2a",
+    padding: "1rem",
+    borderRadius: "8px",
+    marginBottom: "2rem",
+  },
+  inboxCard: {
+    backgroundColor: "#444",
+    padding: "1rem",
+    marginBottom: "1rem",
+    borderRadius: "6px",
+  }
 };
 
 export default AdminDashboard;

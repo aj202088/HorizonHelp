@@ -11,46 +11,34 @@ const AdminDashboard = () => {
   const [broadcastSuccess, setBroadcastSuccess] = useState("");
   const [broadcastError, setBroadcastError] = useState("");
   const [severity, setSeverity] = useState("");
-  // Default set to 5 miles
   const [radius, setRadius] = useState(5);
   const [userAlerts, setUserAlerts] = useState([]);
   const adminEmail = localStorage.getItem("userEmail");
 
   useEffect(() => {
-    // Fetch pending admin requests
     const fetchPendingAdmins = async () => {
       try {
         const response = await fetch("http://localhost:5750/api/pending-admins");
         const data = await response.json();
-        if (data.success) {
-          setPendingAdmins(data.pendingAdmins);
-        } else {
-          console.error("Error fetching pending admins:", data.message);
-        }
+        if (data.success) setPendingAdmins(data.pendingAdmins);
       } catch (err) {
         console.error("Error fetching pending admins:", err);
       }
     };
 
-    // Fetch total users count from backend (create endpoint if needed)
     const fetchUsersCount = async () => {
       try {
         const response = await axios.get("http://localhost:5750/api/users-count");
-        if (response.data.success) {
-          setUsersCount(response.data.count);
-        }
+        if (response.data.success) setUsersCount(response.data.count);
       } catch (err) {
         console.error("Error fetching users count:", err);
       }
     };
 
-    // Fetch total alerts sent count (create endpoint if needed)
     const fetchAlertsSent = async () => {
       try {
         const response = await axios.get("http://localhost:5750/api/alerts-sent");
-        if (response.data.success) {
-          setAlertsSent(response.data.count);
-        }
+        if (response.data.success) setAlertsSent(response.data.count);
       } catch (err) {
         console.error("Error fetching alerts count:", err);
       }
@@ -66,13 +54,13 @@ const AdminDashboard = () => {
       try {
         const response = await axios.get("http://localhost:5750/user-alerts");
         if (response.data.success) {
-          setUserAlerts(response.data.alerts);
+          setUserAlerts(response.data.alerts.filter(alert => !alert.resolved));
         }
       } catch (err) {
         console.error("Failed to load user alerts:", err);
       }
     };
-  
+
     fetchUserAlerts();
   }, []);
 
@@ -102,90 +90,84 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleResolve = async (alertId) => {
+    try {
+      await axios.put(`http://localhost:5750/notifications/resolve/${alertId}`, { resolved: true });
+      setUserAlerts(prev => prev.filter(a => a._id !== alertId));
+    } catch (err) {
+      console.error("Failed to resolve alert:", err);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <h1>Admin Dashboard</h1>
         <div style={styles.stats}>
-          <div style={styles.card}>
-            <h3>Total Users</h3>
-            <p>{usersCount}</p>
-          </div>
-          <div style={styles.card}>
-            <h3>Alerts Sent</h3>
-            <p>{alertsSent}</p>
-          </div>
-          <div style={styles.card}>
-            <h3>Pending Requests</h3>
-            <p>{pendingAdmins.length}</p>
-          </div>
+          <div style={styles.card}><h3>Total Users</h3><p>{usersCount}</p></div>
+          <div style={styles.card}><h3>Alerts Sent</h3><p>{alertsSent}</p></div>
+          <div style={styles.card}><h3>Pending Requests</h3><p>{pendingAdmins.length}</p></div>
         </div>
       </header>
 
-      <section style={styles.broadcastSection}>
-        <h2>Broadcast Alert</h2>
-        <textarea 
-          placeholder="Write your alert message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={styles.textarea}
-        />
+      <div style={styles.mainGrid}>
+        <section style={styles.broadcastSection}>
+          <h2>Broadcast Alert</h2>
+          <textarea
+            placeholder="Write your alert message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            style={styles.textarea}
+          />
+          <input
+            type="text"
+            placeholder="Target City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={styles.input}
+          />
+          <select
+            value={severity}
+            onChange={(e) => setSeverity(e.target.value)}
+            style={styles.input}
+          >
+            <option value="">Select Severity</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="moderate">Moderate</option>
+            <option value="low">Low</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Incident Radius (miles)"
+            value={radius}
+            onChange={(e) => setRadius(parseFloat(e.target.value))}
+            style={styles.input}
+          />
+          <ButtonsTop onPress={handleBroadcast}>Send Alert</ButtonsTop>
+          {broadcastSuccess && <p style={styles.success}>{broadcastSuccess}</p>}
+          {broadcastError && <p style={styles.error}>{broadcastError}</p>}
+        </section>
 
-        <input 
-          type="text"
-          placeholder="Target City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          style={styles.input}
-        />
+        <section style={styles.inboxSection}>
+          <h2>User Alert Inbox</h2>
+          {userAlerts.map(alert => (
+            <div key={alert._id} style={styles.inboxCard}>
+              <p><strong>Name:</strong> {alert.sender.name}</p>
+              <p><strong>Address:</strong> {`${alert.sender.street}, ${alert.sender.city}, ${alert.sender.state} ${alert.sender.zip}, ${alert.sender.country}`}</p>
+              <p><strong>Message:</strong> {alert.message}</p>
+              <label>
+                Resolved:{" "}
+                <input
+                  type="checkbox"
+                  onChange={() => handleResolve(alert._id)}
+                />
+              </label>
+            </div>
+          ))}
+        </section>
+      </div>
 
-        <select 
-          value={severity}
-          onChange={(e) => setSeverity(e.target.value)}
-          style={styles.input}
-        >
-          <option value="">Select Severity</option>
-          <option value="critical">Critical</option>
-          <option value="high">High</option>
-          <option value="moderate">Moderate</option>
-          <option value="low">Low</option>
-        </select>
-
-        <input 
-          type="number"
-          placeholder="Incident Radius (miles)"
-          value={radius}
-          onChange={(e) => setRadius(parseFloat(e.target.value))}
-          style={styles.input}
-        />
-        <ButtonsTop onPress={handleBroadcast}>Send Alert</ButtonsTop>
-        {broadcastSuccess && <p style={styles.success}>{broadcastSuccess}</p>}
-        {broadcastError && <p style={styles.error}>{broadcastError}</p>}
-      </section>
-      <section style={styles.inboxSection}>
-        <h2>User Alert Inbox</h2>
-        {userAlerts.map(alert => (
-          <div key={alert._id} style={styles.inboxCard}>
-            <p><strong>Name:</strong> {alert.sender.name}</p>
-            <p><strong>Address:</strong> {`${alert.sender.street}, ${alert.sender.city}, ${alert.sender.state} ${alert.sender.zip}, ${alert.sender.country}`}</p>
-            <p><strong>Message:</strong> {alert.message}</p>
-            <label>
-              Resolved:
-              <input
-                type="checkbox"
-                checked={alert.resolved}
-                onChange={async (e) => {
-                  const updated = e.target.checked;
-                  await axios.put(`http://localhost:5750/notifications/resolve/${alert._id}`, { resolved: updated });
-                  setUserAlerts(prev =>
-                    prev.map(a => a._id === alert._id ? { ...a, resolved: updated } : a)
-                  );
-                }}
-              />
-            </label>
-          </div>
-        ))}
-      </section>
       <section style={styles.pendingSection}>
         <h2>Pending Admin Requests</h2>
         {pendingAdmins.length === 0 ? (
@@ -207,10 +189,16 @@ const AdminDashboard = () => {
 const styles = {
   container: {
     padding: "2rem",
-    backgroundColor: "#1e1e1e",
+    backgroundImage: 'linear-gradient(rgba(5, 25, 5, 0.9), rgba(5, 25, 5, 0.9)), url("/src/assets/forest.jpg")',
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
     color: "#fff",
     minHeight: "100vh",
-    fontFamily: "Inter, sans-serif",
+    width: "100vw",
+    boxSizing: "border-box",
+    fontFamily: "'Inter', sans-serif",
   },
   header: {
     marginBottom: "2rem",
@@ -226,12 +214,31 @@ const styles = {
     borderRadius: "8px",
     flex: 1,
     textAlign: "center",
+    boxShadow: "0 0 10px 2px orange",
+  },
+  mainGrid: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "2rem",
+    width: "100%",
+    flexWrap: "nowrap",
+    alignItems: "flex-start",
   },
   broadcastSection: {
     backgroundColor: "#2a2a2a",
     padding: "1rem",
     borderRadius: "8px",
-    marginBottom: "2rem",
+    width: "45%",
+    boxShadow: "0 0 10px 2px orange",
+  },
+  inboxSection: {
+    backgroundColor: "#2a2a2a",
+    padding: "1rem",
+    borderRadius: "8px",
+    width: "55%",
+    boxShadow: "0 0 10px 2px orange",
+    maxHeight: "500px",
+    overflowY: "auto",
   },
   textarea: {
     width: "100%",
@@ -255,10 +262,19 @@ const styles = {
   error: {
     color: "red",
   },
+  inboxCard: {
+    backgroundColor: "#444",
+    padding: "1rem",
+    marginBottom: "1rem",
+    borderRadius: "6px",
+    boxShadow: "0 0 6px 1px orange",
+  },
   pendingSection: {
     backgroundColor: "#2a2a2a",
     padding: "1rem",
     borderRadius: "8px",
+    marginTop: "2rem",
+    boxShadow: "0 0 10px 2px orange",
   },
   list: {
     listStyleType: "none",
@@ -268,18 +284,6 @@ const styles = {
     padding: "0.5rem 0",
     borderBottom: "1px solid #444",
   },
-  inboxSection: {
-    backgroundColor: "#2a2a2a",
-    padding: "1rem",
-    borderRadius: "8px",
-    marginBottom: "2rem",
-  },
-  inboxCard: {
-    backgroundColor: "#444",
-    padding: "1rem",
-    marginBottom: "1rem",
-    borderRadius: "6px",
-  }
 };
 
 export default AdminDashboard;

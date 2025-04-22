@@ -5,7 +5,7 @@ const LoginPage = () => {
   return (
     <div
       style={{
-        backgroundImage: 'url(/src/assets/forest.jpg)',
+        backgroundImage: 'linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.9)), url("/src/assets/forest.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

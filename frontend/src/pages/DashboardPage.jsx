@@ -31,7 +31,6 @@ const DashboardPage = () => {
           setUser(data.user);
           setEditedUser(data.user);
           const { street, city, state, zip, country } = data.user;
-          //const { name, phone, street, city, state, zip, country } = data.user;
           const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
           const coordinates = await getCoordinatesFromAddress(fullAddress);
           if (coordinates) setCoords(coordinates);
@@ -92,12 +91,16 @@ const DashboardPage = () => {
     }
   };
 
+  const confirmLogout = () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  };
+
   return (
     <div style={{
       height: "100vh",
       width: "100vw",
       backgroundImage: 'linear-gradient(rgba(5, 25, 5, 0.85), rgba(5, 25, 5, 0.85)), url("/src/assets/forest.jpg")',
-      //backgroundImage: 'linear-gradient(rgba(17, 27, 10, 0.6), rgba(17, 27, 10, 0.6)), url("/src/assets/forest.jpg")',
       backgroundSize: "cover",
       backgroundPosition: "center",
       color: "white",
@@ -105,17 +108,36 @@ const DashboardPage = () => {
       boxSizing: "border-box",
       fontFamily: "Inter, sans-serif"
     }}>
+      {/* Top Navigation */}
       <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
         <ButtonsTop onPress={() => setShowAccount(!showAccount)}>Account</ButtonsTop>
-        <ButtonsTop onPress={() => {
-          localStorage.clear();
-          window.location.href = "/login";
-        }}>Log out</ButtonsTop>
+        <div style={{ position: "relative" }}>
+          <ButtonsTop onPress={() => setShowLogoutConfirm(true)}>Log out</ButtonsTop>
+          {showLogoutConfirm && (
+            <div style={{
+              position: "absolute",
+              top: "3.5rem",
+              left: 0,
+              backgroundColor: "#111",
+              padding: "1rem",
+              borderRadius: "8px",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+              zIndex: 20
+            }}>
+              <p style={{ margin: 0, fontWeight: "bold" }}>Are you sure you want to log out?</p>
+              <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+                <button onClick={confirmLogout} style={{ backgroundColor: "#FFA500", color: "#000", border: "none", padding: "0.4rem 1rem", borderRadius: "5px" }}>Yes</button>
+                <button onClick={() => setShowLogoutConfirm(false)} style={{ backgroundColor: "#444", color: "#fff", border: "none", padding: "0.4rem 1rem", borderRadius: "5px" }}>No</button>
+              </div>
+            </div>
+          )}
+        </div>
         <ButtonsTop onPress={() => { }}>Resources</ButtonsTop>
         <ButtonsTop onPress={() => { }}>First Responder? Click Here</ButtonsTop>
         <ButtonsTop onPress={() => { }}>View Alert Inbox</ButtonsTop>
       </div>
 
+      {/* Account Panel */}
       {showAccount && (
         <div style={{
           position: "absolute",
@@ -130,13 +152,14 @@ const DashboardPage = () => {
         }}>
           <img src={droplet} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
           <h3 style={{ textAlign: "center", marginTop: "0.5rem", color: "#fff", fontWeight: "bold", fontSize: "1.2rem" }}>
-            {user?.name || "Display Name"}
+            {user?.name || "Name not found"}
           </h3>
 
           <div style={{ fontSize: "14px", marginTop: "1rem" }}>
             <p><strong>Email:</strong> {user?.email || "N/A"}</p>
             {editing ? (
               <>
+                <label>Name: <input value={editedUser.name || ""} onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })} /></label><br />
                 <label>Phone: <input value={editedUser.phone || ""} onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })} /></label><br />
                 <label>Street: <input value={editedUser.street || ""} onChange={(e) => setEditedUser({ ...editedUser, street: e.target.value })} /></label><br />
                 <label>City: <input value={editedUser.city || ""} onChange={(e) => setEditedUser({ ...editedUser, city: e.target.value })} /></label><br />
@@ -160,6 +183,7 @@ const DashboardPage = () => {
         </div>
       )}
 
+      {/* Main Content */}
       <div style={{ display: "flex", marginTop: "8rem", alignItems: "flex-start", gap: "2rem" }}>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: "3rem", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.6)" }}>HorizonHelp</h1>

@@ -1,12 +1,15 @@
+// src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from "react";
 import MapComponent from "../components/MapComponent";
 import ButtonsTop from "../components/ButtonsTop";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
 import droplet from "../assets/droplet.png";
 import axios from "axios";
+import ResourcesDropdown from "../components/ResourcesDropdown";
 
 const DashboardPage = () => {
   const [coords, setCoords] = useState(null);
+  const [mapCenter, setMapCenter] = useState(null);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -18,6 +21,7 @@ const DashboardPage = () => {
   const [editing, setEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({});
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showResources, setShowResources] = useState(false);
 
   const email = localStorage.getItem("userEmail");
 
@@ -26,15 +30,18 @@ const DashboardPage = () => {
       try {
         const response = await fetch(`http://localhost:5750/user?email=${email}`);
         const data = await response.json();
-
         if (data.success && data.user) {
           setUser(data.user);
           setEditedUser(data.user);
           const { street, city, state, zip, country } = data.user;
           const fullAddress = `${street}, ${city}, ${state}, ${zip}, ${country}`;
           const coordinates = await getCoordinatesFromAddress(fullAddress);
-          if (coordinates) setCoords(coordinates);
-          else setError("Could not geocode address.");
+          if (coordinates) {
+            setCoords(coordinates);
+            setMapCenter(coordinates);
+          } else {
+            setError("Could not geocode address.");
+          }
         } else {
           setError("User not found.");
         }
@@ -108,22 +115,12 @@ const DashboardPage = () => {
       boxSizing: "border-box",
       fontFamily: "Inter, sans-serif"
     }}>
-      {/* Top Navigation */}
       <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
         <ButtonsTop onPress={() => setShowAccount(!showAccount)}>Account</ButtonsTop>
         <div style={{ position: "relative" }}>
           <ButtonsTop onPress={() => setShowLogoutConfirm(true)}>Log out</ButtonsTop>
           {showLogoutConfirm && (
-            <div style={{
-              position: "absolute",
-              top: "3.5rem",
-              left: 0,
-              backgroundColor: "#111",
-              padding: "1rem",
-              borderRadius: "8px",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-              zIndex: 20
-            }}>
+            <div style={{ position: "absolute", top: "3.5rem", left: 0, backgroundColor: "#111", padding: "1rem", borderRadius: "8px", boxShadow: "0 4px 10px rgba(0,0,0,0.5)", zIndex: 20 }}>
               <p style={{ margin: 0, fontWeight: "bold" }}>Are you sure you want to log out?</p>
               <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
                 <button onClick={confirmLogout} style={{ backgroundColor: "#FFA500", color: "#000", border: "none", padding: "0.4rem 1rem", borderRadius: "5px" }}>Yes</button>
@@ -132,29 +129,19 @@ const DashboardPage = () => {
             </div>
           )}
         </div>
-        <ButtonsTop onPress={() => { }}>Resources</ButtonsTop>
+        <ButtonsTop onPress={() => setShowResources(!showResources)}>Resources</ButtonsTop>
         <ButtonsTop onPress={() => { }}>First Responder? Click Here</ButtonsTop>
         <ButtonsTop onPress={() => { }}>View Alert Inbox</ButtonsTop>
       </div>
 
-      {/* Account Panel */}
       {showAccount && (
         <div style={{
-          position: "absolute",
-          top: "6rem",
-          left: "2rem",
-          zIndex: 10,
-          backgroundColor: "#111",
-          borderRadius: "10px",
-          padding: "1.5rem",
-          width: "300px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+          position: "absolute", top: "6rem", left: "2rem", zIndex: 10,
+          backgroundColor: "#111", borderRadius: "10px", padding: "1.5rem",
+          width: "300px", boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
         }}>
           <img src={droplet} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
-          <h3 style={{ textAlign: "center", marginTop: "0.5rem", color: "#fff", fontWeight: "bold", fontSize: "1.2rem" }}>
-            {user?.name || "Name not found"}
-          </h3>
-
+          <h3 style={{ textAlign: "center", marginTop: "0.5rem", fontWeight: "bold" }}>{user?.name || "Name not found"}</h3>
           <div style={{ fontSize: "14px", marginTop: "1rem" }}>
             <p><strong>Email:</strong> {user?.email || "N/A"}</p>
             {editing ? (
@@ -183,25 +170,22 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {/* Main Content */}
+      {showResources && coords && (
+        <ResourcesDropdown coords={coords} onSelectLocation={(loc) => setMapCenter([loc.lat, loc.lon])} onClose={() => setShowResources(false)} />
+      )}
+
       <div style={{ display: "flex", marginTop: "8rem", alignItems: "flex-start", gap: "2rem" }}>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: "3rem", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0,0,0,0.6)" }}>HorizonHelp</h1>
           <p style={{
-            fontSize: "18px",
-            fontWeight: 500,
-            maxWidth: "90%",
+            fontSize: "18px", fontWeight: 500, maxWidth: "90%",
             textShadow: "1px 1px 3px rgba(0,0,0,0.6)"
           }}>
             HorizonHelp is an emergency response application that provides users with real-time alerts, heatmaps indicating severity of local fires, and informational help and resources.
           </p>
-
           <div style={{
-            marginTop: "1.5rem",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            padding: "1rem",
-            borderRadius: "12px",
-            maxWidth: "100%",
+            marginTop: "1.5rem", backgroundColor: "rgba(0, 0, 0, 0.7)",
+            padding: "1rem", borderRadius: "12px", maxWidth: "100%",
             boxShadow: "0 8px 16px rgba(0,0,0,0.3)"
           }}>
             <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>Alerts</h2>
@@ -228,7 +212,12 @@ const DashboardPage = () => {
             <button
               onClick={handleSend}
               disabled={isSubmitting}
-              style={{ marginTop: "0.5rem", padding: "0.5rem 1rem", backgroundColor: "#FFA500", color: "#000", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
+              style={{
+                marginTop: "0.5rem", padding: "0.5rem 1rem",
+                backgroundColor: "#FFA500", color: "#000",
+                border: "none", borderRadius: "4px",
+                cursor: "pointer", fontWeight: "bold"
+              }}
             >
               {isSubmitting ? "Sending..." : "Send Notification"}
             </button>
@@ -239,7 +228,7 @@ const DashboardPage = () => {
 
         <div style={{ flex: 1 }}>
           {coords ? (
-            <MapComponent position={coords} />
+            <MapComponent position={mapCenter || coords} />
           ) : error ? (
             <p>{error}</p>
           ) : (

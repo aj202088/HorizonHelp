@@ -113,7 +113,7 @@ const DashboardPage = () => {
       color: "white",
       padding: "2rem",
       boxSizing: "border-box",
-      fontFamily: "Poppins, sans-serif"
+      fontFamily: "Inter, sans-serif"
     }}>
       <div style={{ position: "absolute", top: "2rem", left: "2rem", display: "flex", gap: "1rem" }}>
         <ButtonsTop onPress={() => setShowAccount(!showAccount)}>Account</ButtonsTop>

@@ -122,12 +122,19 @@ app.get("/user", async (req, res) => {
 });
 
 // Post endpoint for admin to send notifications to all users in a specific city
-app.post("/notifications/admin-broadcast", isAdmin, async (req, res) => {
+app.post("/notifications/admin-broadcast", async (req, res) => {
     const { adminEmail, message, city, severity, radius = 5} = req.body;
     // Access the db and relevant collections
     const db = connect.getDB();
     const usersCollection = db.collection("users");
     const notificationsCollection = db.collection("notifications");
+
+    // Verify user is admin
+    const user = await usersCollection.findOne({ email: adminEmail });
+    if (!user || !user.approvedAdmin) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
     try {
         // Find all users in the target city
         const recipients = await usersCollection.find({ city: { $regex: city, $options: "i" }}).toArray();
@@ -150,7 +157,7 @@ app.post("/notifications/admin-broadcast", isAdmin, async (req, res) => {
         await notificationsCollection.insertOne({
             type: "admin-broadcast",
             message,
-            from: req.user._id,
+            from: user._id,
             to: recipientIds,
             city,
             severity,
@@ -252,15 +259,21 @@ app.get("/notifications/:userId", async (req, res) => {
         // Attach sender info to each message
         const senderMessage = await Promise.all(
             messages.map(async (message) => {
-            const sender = await userCollection.findOne({ _id: new ObjectId(String(message.from)) });
-            return {
-                // Spread all original message fields
-                ...message,
-                sender: sender
-                ? { name: sender.name, email: sender.email }
-                : { name: "Unknown", email: "N/A" },
-                timestamp: new Date(message.createdAt).toLocaleString()
-            };
+                let sender;
+                try {
+                    sender = await userCollection.findOne({ _id: new ObjectId(String(message.from)) });
+                } 
+                catch (e) {
+                    console.error("Error converting alert.from to ObjectId:", e, message.from);
+                }
+                return {
+                    // Spread all original message fields
+                    ...message,
+                    sender: sender
+                    ? { name: sender.name, email: sender.email }
+                    : { name: "Unknown", email: "N/A" },
+                    timestamp: new Date(message.createdAt).toLocaleString()
+                };
             })
         );
         // Notification was sent successfully
@@ -392,6 +405,7 @@ app.get("/api/users-count", async (req, res) => {
 
 // GET endpoint to retrieve all user alerts for admins
 app.get("/user-alerts", async (req, res) => {
+    
     try {
       const db = connect.getDB();
       const notificationsCollection = db.collection("notifications");
@@ -403,8 +417,21 @@ app.get("/user-alerts", async (req, res) => {
         .toArray();
   
       // Populate sender info for each alert
-      const enriched = await Promise.all(alerts.map(async (alert) => {
-        const sender = await usersCollection.findOne({ _id: new ObjectId(alert.from) });
+      const senderMessage = await Promise.all(alerts.map(async (alert) => {
+        console.log("Processing alert:", alert);
+        // skip invalid ObjectId
+        if (!ObjectId.isValid(alert.from)) {
+            console.error("Invalid ObjectId in alert.from:", alert.from);
+            return null;
+        }
+
+        const sender = await usersCollection.findOne({ _id: new ObjectId(String(alert.from)) });
+        // Skip if alert is from deleted or invalid user
+        if (!sender) {
+            console.warn(" Skipping alert — sender not found:", alert.from);
+            return null;
+        }
+        
         return {
           ...alert,
           sender: {
@@ -417,8 +444,9 @@ app.get("/user-alerts", async (req, res) => {
           }
         };
       }));
-  
-      res.json({ success: true, alerts: enriched });
+      // Remove any null results
+        const filtered = senderMessage.filter(alert => alert !== null);
+      res.json({ success: true, alerts: filtered });
     } catch (err) {
       console.error("Failed to fetch user alerts:", err);
       res.status(500).json({ success: false, message: "Internal error" });

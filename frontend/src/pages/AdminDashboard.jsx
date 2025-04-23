@@ -73,7 +73,7 @@ const AdminDashboard = () => {
     }
     try {
       const response = await axios.post("http://localhost:5750/notifications/admin-broadcast", {
-        email: adminEmail,
+        adminEmail,
         message,
         city,
         severity,

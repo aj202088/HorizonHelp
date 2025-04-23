@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import MapComponent from "../components/MapComponent";
 import ButtonsTop from "../components/ButtonsTop";
 import { getCoordinatesFromAddress } from "../Utils/geocode";
-import droplet from "../assets/droplet.png";
+//import droplet from "../assets/droplet.png";
+import tree from "../assets/tree.png";
 import axios from "axios";
 import ResourcesDropdown from "../components/ResourcesDropdown";
 
@@ -150,7 +151,7 @@ const DashboardPage = () => {
           backgroundColor: "#111", borderRadius: "10px", padding: "1.5rem",
           width: "300px", boxShadow: "0 4px 10px rgba(214, 144, 13, 0.91)",
         }}>
-          <img src={droplet} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
+          <img src={tree} alt="avatar" style={{ width: "80px", height: "80px", borderRadius: "50%", display: "block", margin: "0 auto" }} />
           <h3 style={{ textAlign: "center", marginTop: "0.5rem", fontWeight: "bold" }}>{user?.name || "Name not found"}</h3>
           <div style={{ fontSize: "14px", marginTop: "1rem" }}>
             <p><strong>Email:</strong> {user?.email || "N/A"}</p>

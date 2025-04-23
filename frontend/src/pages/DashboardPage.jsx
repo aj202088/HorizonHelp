@@ -206,7 +206,18 @@ const DashboardPage = () => {
                   marginBottom: "0.5rem",
                   borderRadius: "5px"
                 }}>
-                  {note.message}
+                  <p style={{ marginBottom: "0.3rem" }}>
+                    <strong>From:</strong> {note.sender?.name || "Unknown"} ({note.sender?.email || "N/A"})
+                  </p>
+                  <p style={{ marginBottom: "0.3rem" }}>
+                    <strong>Severity:</strong> {note.severity || "N/A"}
+                  </p>
+                  <p style={{ marginBottom: "0.3rem" }}>
+                    <strong>Time:</strong> {new Date(note.createdAt).toLocaleString()}
+                  </p>
+                  <p style={{ marginBottom: "0.3rem" }}>
+                    <strong>Message:</strong> {note.message}
+                  </p>
                 </div>
               ))
             )}
@@ -244,7 +255,30 @@ const DashboardPage = () => {
           borderRadius: "8px", 
           boxShadow: "0 2px 20px rgba(218, 146, 12, 0.86)" }}>
           {coords ? (
-            <MapComponent position={mapCenter || coords} />
+            <>
+              <MapComponent position={mapCenter || coords} />
+              <div style={{ marginTop: "1rem" }}>
+                <h3 style={{ marginBottom: "0.5rem", fontSize: "1.1rem" }}>Severity Legend</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ width: "20px", height: "20px", backgroundColor: "red", display: "inline-block", borderRadius: "4px" }}></span>
+                    <span>Critical</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ width: "20px", height: "20px", backgroundColor: "orange", display: "inline-block", borderRadius: "4px" }}></span>
+                    <span>High</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ width: "20px", height: "20px", backgroundColor: "yellow", display: "inline-block", borderRadius: "4px" }}></span>
+                    <span>Moderate</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ width: "20px", height: "20px", backgroundColor: "green", display: "inline-block", borderRadius: "4px" }}></span>
+                    <span>Low</span>
+                  </div>
+                </div>
+              </div>
+            </>
           ) : error ? (
             <p>{error}</p>
           ) : (

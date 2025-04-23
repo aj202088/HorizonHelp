@@ -249,8 +249,22 @@ app.get("/notifications/:userId", async (req, res) => {
             .sort({ createdAt: -1 })
             .toArray();
 
+        // Attach sender info to each message
+        const senderMessage = await Promise.all(
+            messages.map(async (message) => {
+            const sender = await userCollection.findOne({ _id: new ObjectId(String(message.from)) });
+            return {
+                // Spread all original message fields
+                ...message,
+                sender: sender
+                ? { name: sender.name, email: sender.email }
+                : { name: "Unknown", email: "N/A" },
+                timestamp: new Date(message.createdAt).toLocaleString()
+            };
+            })
+        );
         // Notification was sent successfully
-        res.json({ success: true, messages });
+        res.json({ success: true, messages: senderMessage });
     } 
     catch (err) {
         // Catch/log unexpected server errors

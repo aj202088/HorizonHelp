@@ -40,7 +40,9 @@ const AdminDashboard = () => {
     const fetchAlertsSent = async () => {
       try {
         const response = await axios.get("http://localhost:5750/api/alerts-sent");
-        if (response.data.success) setAlertsSent(response.data.count);
+        if (response.data.success) {
+          setAlertsSent(response.data.count);
+        }
       } catch (err) {
         console.error("Error fetching alerts count:", err);
       }
@@ -57,6 +59,8 @@ const AdminDashboard = () => {
         const response = await axios.get("http://localhost:5750/user-alerts");
         if (response.data.success) {
           setUserAlerts(response.data.alerts.filter(alert => !alert.resolved));
+          //setUserAlerts(response.data.alerts);
+          //setUserAlerts(prev => prev.filter(a => a._id !== alertId));
         }
       } catch (err) {
         console.error("Failed to load user alerts:", err);
